@@ -35,6 +35,14 @@ RUN echo "Files in /app:" && ls -la && \
 # Build Next.js application
 RUN npm run build 2>&1 | tee build.log || (cat build.log && exit 1)
 
+# Debug: List build output
+RUN echo "Build completed. Checking .next directory:" && \
+    ls -la .next/ && \
+    echo "Checking for standalone:" && \
+    ls -la .next/standalone/ || echo "Standalone not found!" && \
+    echo "Checking for static:" && \
+    ls -la .next/static/ || echo "Static not found!"
+
 # Stage 3: Production
 FROM node:18-alpine AS runner
 WORKDIR /app
@@ -48,13 +56,19 @@ ENV PORT=3000
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy standalone build
+# Copy necessary files for production
+COPY --from=builder /app/next.config.mjs ./
+COPY --from=builder /app/package.json ./
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy source files needed at runtime
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/app ./app
 
 # Create media directory for uploads
-RUN mkdir -p ./media && chown -R nextjs:nodejs ./media
+RUN mkdir -p ./media && chown -R nextjs:nodejs ./media ./public ./.next
 
 # Switch to non-root user
 USER nextjs
@@ -65,5 +79,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start Next.js server
-CMD ["node", "server.js"]
+# Start Next.js production server
+CMD ["node_modules/.bin/next", "start"]
