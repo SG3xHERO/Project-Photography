@@ -56,19 +56,28 @@ ENV PORT=3000
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files for production
-COPY --from=builder /app/next.config.mjs ./
-COPY --from=builder /app/package.json ./
+# Copy necessary files for production (as root, then we'll fix ownership)
+COPY --from=builder /app/next.config.mjs ./next.config.mjs
+COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy source files needed at runtime
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/app ./app
 
-# Create media directory for uploads
-RUN mkdir -p ./media && chown -R nextjs:nodejs ./media ./public ./.next
+# Copy the .next build output
+COPY --from=builder /app/.next ./.next
+
+# Debug: Verify .next directory was copied
+RUN ls -la && \
+    echo "Checking .next:" && ls -la .next/ && \
+    echo "Checking .next/server:" && ls -la .next/server/ && \
+    echo "Checking for BUILD_ID:" && cat .next/BUILD_ID || echo "BUILD_ID not found!"
+
+# Create media directory and fix all permissions
+RUN mkdir -p ./media && \
+    chown -R nextjs:nodejs ./media ./public ./.next ./src ./app
 
 # Switch to non-root user
 USER nextjs
