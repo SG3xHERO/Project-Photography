@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps --include=dev
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
@@ -25,9 +25,15 @@ COPY public ./public
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PAYLOAD_SECRET=build-time-secret-change-in-production
+ENV SKIP_ENV_VALIDATION=1
+
+# Debug: List files before build
+RUN echo "Files in /app:" && ls -la && \
+    echo "Files in /app/app:" && ls -la app/ && \
+    echo "Files in /app/src:" && ls -la src/
 
 # Build Next.js application
-RUN npm run build
+RUN npm run build 2>&1 | tee build.log || (cat build.log && exit 1)
 
 # Stage 3: Production
 FROM node:18-alpine AS runner
