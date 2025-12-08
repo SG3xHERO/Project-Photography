@@ -26,16 +26,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PAYLOAD_SECRET=build-time-secret-change-in-production
 ENV SKIP_ENV_VALIDATION=1
+ENV DATABASE_URI=mongodb://localhost:27017/build-placeholder
 
 # Debug: List files before build
 RUN echo "========== Files before build ==========" && \
     ls -la && \
     echo "Working directory: $(pwd)"
 
-# Build Next.js application
-RUN echo "========== Starting Next.js build ==========" && \
-    npm run build && \
-    echo "========== Build command completed =========="
+# Build Next.js application (simplified without cross-env)
+RUN npm run build
 
 # Debug: Check what was created
 RUN echo "========== Files after build ==========" && \
