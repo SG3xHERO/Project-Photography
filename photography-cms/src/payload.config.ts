@@ -36,6 +36,12 @@ export default buildConfig({
     // Media collection for image uploads
     {
       slug: 'media',
+      access: {
+        read: () => true, // Public read access so images can be displayed
+        create: ({ req: { user } }) => !!user,
+        update: ({ req: { user } }) => !!user,
+        delete: ({ req: { user } }) => !!user,
+      },
       upload: {
         staticDir: path.resolve(dirname, '../media'),
         mimeTypes: ['image/*'],
@@ -71,6 +77,12 @@ export default buildConfig({
     // Albums collection
     {
       slug: 'albums',
+      access: {
+        read: () => true, // Public read access for frontend
+        create: ({ req: { user } }) => !!user,
+        update: ({ req: { user } }) => !!user,
+        delete: ({ req: { user } }) => !!user,
+      },
       admin: {
         useAsTitle: 'title',
         defaultColumns: ['title', 'coverImage', 'photoCount', 'updatedAt'],
@@ -122,6 +134,12 @@ export default buildConfig({
     // Photos collection
     {
       slug: 'photos',
+      access: {
+        read: () => true, // Public read access for frontend
+        create: ({ req: { user } }) => !!user,
+        update: ({ req: { user } }) => !!user,
+        delete: ({ req: { user } }) => !!user,
+      },
       admin: {
         useAsTitle: 'title',
         defaultColumns: ['title', 'image', 'album', 'category', 'featured'],
