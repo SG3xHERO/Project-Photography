@@ -1,0 +1,15 @@
+FROM nginx:alpine
+
+# Copy website files
+COPY index.html /usr/share/nginx/html/
+COPY script.js /usr/share/nginx/html/
+COPY styles.css /usr/share/nginx/html/
+COPY api.js /usr/share/nginx/html/
+COPY data /usr/share/nginx/html/data
+COPY favicons /usr/share/nginx/html/favicons
+
+# Expose port 80
+EXPOSE 80
+
+# Use default nginx command
+CMD ["nginx", "-g", "daemon off;"]
