@@ -1,8 +1,7 @@
 import path from 'path'
-import { buildConfig } from 'payload'
+import { buildConfig } from 'payload/config'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { cloudinaryPlugin } from '@payloadcms/storage-cloudinary'
 
 // Collections
 import { Users } from './collections/Users'
@@ -41,27 +40,6 @@ export default buildConfig({
     'http://localhost:8080',
     'http://localhost:5173',
   ].filter(Boolean),
-  plugins: [
-    // Cloudinary storage plugin (optional - can use local storage instead)
-    ...(process.env.CLOUDINARY_CLOUD_NAME
-      ? [
-          cloudinaryPlugin({
-            collections: {
-              media: {
-                adapter: 'cloudinary',
-                options: {
-                  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-                  apiKey: process.env.CLOUDINARY_API_KEY,
-                  apiSecret: process.env.CLOUDINARY_API_SECRET,
-                  folder: 'photography-cms',
-                },
-              },
-            },
-          }),
-        ]
-      : []),
-  ],
-  // Enable GraphQL
   graphQL: {
     schemaOutputFile: path.resolve(__dirname, '../schema.graphql'),
   },

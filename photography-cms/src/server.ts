@@ -22,34 +22,38 @@ const start = async () => {
   await payload.init({
     secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
     express: app,
-    onInit: async () => {
+    onInit: async (payload) => {
       payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`)
       
       // Create default admin user if none exists
-      const users = await payload.find({
-        collection: 'users',
-        limit: 1,
-      })
-
-      if (users.docs.length === 0) {
-        await payload.create({
+      try {
+        const users = await payload.find({
           collection: 'users',
-          data: {
-            email: process.env.ADMIN_EMAIL || 'admin@example.com',
-            password: process.env.ADMIN_PASSWORD || 'changeme123',
-            name: 'Admin User',
-            role: 'admin',
-          },
+          limit: 1,
         })
-        payload.logger.info('Default admin user created')
+
+        if (users.docs.length === 0) {
+          await payload.create({
+            collection: 'users',
+            data: {
+              email: process.env.ADMIN_EMAIL || 'admin@example.com',
+              password: process.env.ADMIN_PASSWORD || 'changeme123',
+              name: 'Admin User',
+              role: 'admin',
+            },
+          })
+          payload.logger.info('Default admin user created')
+        }
+      } catch (error) {
+        payload.logger.error('Error creating admin user:', error)
       }
     },
   })
 
   app.listen(PORT, async () => {
-    payload.logger.info(`Server listening on port ${PORT}`)
-    payload.logger.info(`Admin panel: http://localhost:${PORT}/admin`)
-    payload.logger.info(`API: http://localhost:${PORT}/api`)
+    console.log(`Server listening on port ${PORT}`)
+    console.log(`Admin panel: http://localhost:${PORT}/admin`)
+    console.log(`API: http://localhost:${PORT}/api`)
   })
 }
 
