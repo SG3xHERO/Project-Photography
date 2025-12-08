@@ -240,71 +240,315 @@ export default buildConfig({
     {
       slug: 'siteSettings',
       label: 'Site Settings',
+      access: {
+        read: () => true, // Public read access
+      },
       fields: [
+        // Hero Section
         {
-          name: 'siteTitle',
-          type: 'text',
-          required: true,
-          defaultValue: 'Photography Portfolio',
+          name: 'hero',
+          type: 'group',
+          label: 'Hero Section',
+          fields: [
+            {
+              name: 'badge',
+              type: 'text',
+              defaultValue: 'Portfolio',
+              admin: {
+                description: 'Small badge text above title',
+              },
+            },
+            {
+              name: 'title',
+              type: 'text',
+              required: true,
+              defaultValue: 'Motorcycle Photography',
+              admin: {
+                description: 'Main hero title',
+              },
+            },
+            {
+              name: 'subtitle',
+              type: 'text',
+              defaultValue: 'Capturing the Spirit of the Ride',
+              admin: {
+                description: 'Subtitle below the title',
+              },
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              defaultValue: 'From the adrenaline of track racing to the artistry of custom builds, I document the passion and craftsmanship that makes motorcycling extraordinary. Each photograph tells a story of speed, style, and freedom.',
+              admin: {
+                description: 'Hero description text',
+              },
+            },
+            {
+              name: 'primaryButtonText',
+              type: 'text',
+              defaultValue: 'View Featured',
+            },
+            {
+              name: 'secondaryButtonText',
+              type: 'text',
+              defaultValue: 'Browse Albums',
+            },
+          ],
         },
+        // About Section
         {
-          name: 'siteDescription',
-          type: 'textarea',
-          defaultValue: 'A photography portfolio showcasing beautiful images',
+          name: 'about',
+          type: 'group',
+          label: 'About Section',
+          fields: [
+            {
+              name: 'sectionLabel',
+              type: 'text',
+              defaultValue: 'About',
+              admin: {
+                description: 'Small label above title',
+              },
+            },
+            {
+              name: 'title',
+              type: 'text',
+              defaultValue: 'Passion for Motorcycle Photography',
+              admin: {
+                description: 'About section title',
+              },
+            },
+            {
+              name: 'paragraph1',
+              type: 'textarea',
+              defaultValue: "I'm passionate about capturing the raw energy and beauty of motorcycles. From track racing to custom builds, I document the culture and craftsmanship that makes motorcycling special.",
+              admin: {
+                description: 'First paragraph',
+              },
+            },
+            {
+              name: 'paragraph2',
+              type: 'textarea',
+              defaultValue: "Each photo tells a story of speed, style, and freedom. Whether it's the intensity of a race, the artistry of a custom build, or the adventure of the open road, my goal is to preserve these moments in stunning detail.",
+              admin: {
+                description: 'Second paragraph',
+              },
+            },
+            {
+              name: 'image',
+              type: 'upload',
+              relationTo: 'media',
+              admin: {
+                description: 'About section image',
+              },
+            },
+            {
+              name: 'imageFallbackUrl',
+              type: 'text',
+              defaultValue: 'https://images.unsplash.com/photo-1558981852-426c6c22a060?w=800',
+              admin: {
+                description: 'Fallback image URL if no image uploaded',
+              },
+            },
+            {
+              name: 'features',
+              type: 'array',
+              label: 'Feature Items',
+              defaultValue: [
+                {
+                  title: 'Professional Quality',
+                  description: 'High-resolution images perfect for prints and digital use',
+                  icon: 'camera',
+                },
+                {
+                  title: 'Motorcycle Specialist',
+                  description: 'Specialized in racing, custom builds, and adventure photography',
+                  icon: 'shield',
+                },
+                {
+                  title: 'Passion Driven',
+                  description: 'Every shot captures the soul and spirit of the ride',
+                  icon: 'heart',
+                },
+              ],
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  required: true,
+                },
+                {
+                  name: 'icon',
+                  type: 'select',
+                  options: [
+                    { label: 'Camera', value: 'camera' },
+                    { label: 'Shield', value: 'shield' },
+                    { label: 'Heart', value: 'heart' },
+                    { label: 'Star', value: 'star' },
+                    { label: 'Zap', value: 'zap' },
+                  ],
+                  defaultValue: 'camera',
+                },
+              ],
+            },
+          ],
         },
+        // Other Projects Section
         {
-          name: 'heroTitle',
-          type: 'text',
-          defaultValue: 'Welcome to my Photography',
+          name: 'otherProjects',
+          type: 'group',
+          label: 'Other Projects Section',
+          fields: [
+            {
+              name: 'sectionLabel',
+              type: 'text',
+              defaultValue: 'Network',
+              admin: {
+                description: 'Small label above title',
+              },
+            },
+            {
+              name: 'title',
+              type: 'text',
+              defaultValue: 'Other Projects',
+              admin: {
+                description: 'Section title',
+              },
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              defaultValue: 'Explore my other work and projects',
+              admin: {
+                description: 'Section description',
+              },
+            },
+            {
+              name: 'projects',
+              type: 'array',
+              label: 'Projects',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  required: true,
+                },
+                {
+                  name: 'url',
+                  type: 'text',
+                  required: true,
+                  admin: {
+                    description: 'Project URL',
+                  },
+                },
+                {
+                  name: 'buttonText',
+                  type: 'text',
+                  defaultValue: 'Visit Site',
+                },
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Project thumbnail image',
+                  },
+                },
+                {
+                  name: 'imageFallbackUrl',
+                  type: 'text',
+                  admin: {
+                    description: 'Fallback image URL if no image uploaded',
+                  },
+                },
+              ],
+            },
+          ],
         },
+        // Footer
         {
-          name: 'heroSubtitle',
-          type: 'text',
-          defaultValue: 'Capturing moments that matter',
+          name: 'footer',
+          type: 'group',
+          label: 'Footer',
+          fields: [
+            {
+              name: 'description',
+              type: 'textarea',
+              defaultValue: 'A collection of motorcycle photography capturing the spirit of the ride.',
+              admin: {
+                description: 'Footer description text',
+              },
+            },
+            {
+              name: 'copyrightText',
+              type: 'text',
+              defaultValue: '2025 Ben Foggon Photography. All rights reserved.',
+              admin: {
+                description: 'Copyright text (year will be auto-updated in frontend)',
+              },
+            },
+            {
+              name: 'links',
+              type: 'array',
+              label: 'Footer Links',
+              fields: [
+                {
+                  name: 'text',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'url',
+                  type: 'text',
+                  required: true,
+                },
+              ],
+            },
+          ],
         },
-        {
-          name: 'heroImage',
-          type: 'upload',
-          relationTo: 'media',
-        },
-        {
-          name: 'aboutTitle',
-          type: 'text',
-          defaultValue: 'About Me',
-        },
-        {
-          name: 'aboutText',
-          type: 'richText',
-        },
-        {
-          name: 'aboutImage',
-          type: 'upload',
-          relationTo: 'media',
-        },
-        {
-          name: 'contactEmail',
-          type: 'email',
-        },
+        // Social Media
         {
           name: 'socialLinks',
           type: 'array',
+          label: 'Social Media Links',
           fields: [
             {
               name: 'platform',
               type: 'select',
+              required: true,
               options: [
                 { label: 'Instagram', value: 'instagram' },
                 { label: 'Twitter', value: 'twitter' },
                 { label: 'Facebook', value: 'facebook' },
                 { label: 'YouTube', value: 'youtube' },
                 { label: 'LinkedIn', value: 'linkedin' },
+                { label: 'GitHub', value: 'github' },
               ],
             },
             {
               name: 'url',
               type: 'text',
+              required: true,
             },
           ],
+        },
+        // Contact
+        {
+          name: 'contactEmail',
+          type: 'email',
+          label: 'Contact Email',
+          admin: {
+            description: 'Primary contact email address',
+          },
         },
       ],
     },
