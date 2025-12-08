@@ -28,23 +28,23 @@ ENV PAYLOAD_SECRET=build-time-secret-change-in-production
 ENV SKIP_ENV_VALIDATION=1
 
 # Debug: List files before build
-RUN echo "Files in /app:" && ls -la && \
-    echo "Files in /app/app:" && ls -la app/ && \
-    echo "Files in /app/src:" && ls -la src/
+RUN echo "========== Files before build ==========" && \
+    ls -la && \
+    echo "Working directory: $(pwd)"
 
 # Build Next.js application
-RUN npm run build 2>&1 | tee build.log || (cat build.log && exit 1)
+RUN echo "========== Starting Next.js build ==========" && \
+    npm run build && \
+    echo "========== Build command completed =========="
 
-# Debug: List build output and verify it's complete
-RUN echo "========== Build completed. Checking output ==========" && \
+# Debug: Check what was created
+RUN echo "========== Files after build ==========" && \
     ls -la && \
-    echo "========== Checking .next directory ==========" && \
-    ls -la .next/ && \
-    echo "========== Checking .next/BUILD_ID ==========" && \
-    cat .next/BUILD_ID && \
-    echo "========== Checking .next/server ==========" && \
-    ls -la .next/server/ && \
-    echo "========== Build verification complete =========="
+    if [ -d .next ]; then \
+        echo "SUCCESS: .next exists" && ls -la .next/; \
+    else \
+        echo "ERROR: .next not found!"; \
+    fi
 
 # Stage 3: Production
 FROM node:18-alpine AS runner
