@@ -1,19 +1,15 @@
 version: '3.8'
 
-# Portainer Stack for Photography CMS
-# Deploy from repository root
-# Repository: Project-Photography
-# Compose path: portainer-cms-stack.yml
-
 services:
+  # MongoDB Database
   mongodb:
     image: mongo:7
-    container_name: photography-cms-mongodb
+    container_name: photography-mongodb
     restart: unless-stopped
     environment:
       MONGO_INITDB_DATABASE: photography-cms
     volumes:
-      - photography-mongodb-data:/data/db
+      - mongodb-data:/data/db
     networks:
       - photography-network
     healthcheck:
@@ -21,14 +17,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    labels:
-      - "com.photography.service=database"
 
+  # Payload CMS Backend
   cms:
     build:
       context: ./photography-cms
       dockerfile: Dockerfile
-    image: photography-cms:latest
     container_name: photography-cms
     restart: unless-stopped
     ports:
@@ -36,30 +30,46 @@ services:
     environment:
       MONGODB_URI: mongodb://mongodb:27017/photography-cms
       DATABASE_URI: mongodb://mongodb:27017/photography-cms
-      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
-      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-this-secret-key}
+      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-http://localhost:3000}
       PORT: 3000
       NODE_ENV: production
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme123}
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - photography-network
     volumes:
-      - photography-media:/app/media
-    labels:
-      - "com.photography.service=cms"
-      - "traefik.enable=true"
-      - "traefik.http.routers.photography-cms.rule=Host(`cms.yourdomain.com`)"
-      - "traefik.http.services.photography-cms.loadbalancer.server.port=3000"
+      - cms-media:/app/media
+
+  # Frontend Website (nginx serving static files)
+  frontend:
+    image: nginx:alpine
+    container_name: photography-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    volumes:
+      - ./index-new.html:/usr/share/nginx/html/index.html:ro
+      - ./app.js:/usr/share/nginx/html/app.js:ro
+      - ./styles-new.css:/usr/share/nginx/html/styles.css:ro
+      - ./data:/usr/share/nginx/html/data:ro
+      - ./favicons:/usr/share/nginx/html/favicons:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - photography-network
+    depends_on:
+      - cms
 
 volumes:
-  photography-mongodb-data:
+  mongodb-data:
     driver: local
-  photography-media:
+  cms-media:
     driver: local
 
 networks:
