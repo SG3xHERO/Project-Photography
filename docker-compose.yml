@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: photography-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: photography-cms
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - photography-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Payload CMS Backend
+  cms:
+    build:
+      context: ./photography-cms
+      dockerfile: Dockerfile
+    container_name: photography-cms
+    restart: unless-stopped
+    ports:
+      - "${CMS_PORT:-3000}:3000"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/photography-cms
+      DATABASE_URI: mongodb://mongodb:27017/photography-cms
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-this-secret-key}
+      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-http://localhost:3000}
+      PORT: 3000
+      NODE_ENV: production
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme123}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - photography-network
+    volumes:
+      - cms-media:/app/media
+
+  # Frontend Website (nginx serving static files)
+  frontend:
+    image: nginx:alpine
+    container_name: photography-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    volumes:
+      - ./index-new.html:/usr/share/nginx/html/index.html:ro
+      - ./app.js:/usr/share/nginx/html/app.js:ro
+      - ./styles-new.css:/usr/share/nginx/html/styles.css:ro
+      - ./data:/usr/share/nginx/html/data:ro
+      - ./favicons:/usr/share/nginx/html/favicons:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - photography-network
+    depends_on:
+      - cms
+
+volumes:
+  mongodb-data:
+    driver: local
+  cms-media:
+    driver: local
+
+networks:
+  photography-network:
+    driver: bridge

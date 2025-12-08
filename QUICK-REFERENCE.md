@@ -3,11 +3,8 @@
 ## One-Command Deploy
 
 ```powershell
-# Navigate to CMS
-cd photography-cms
-
-# Build and deploy
-.\build-and-deploy.ps1
+# From the root directory (Project-Photography/)
+.\deploy.ps1
 
 # Follow prompts for Portainer or local deployment
 ```
@@ -26,9 +23,9 @@ CLOUDINARY_API_SECRET=your-secret
 
 ## Portainer Deployment (3 Steps)
 
-1. **Build**: `cd photography-cms && .\build-and-deploy.ps1`
-2. **Deploy**: Portainer → Stacks → Add Stack → Paste `portainer-stack.yml`
-3. **Access**: `http://your-server-ip:3000/admin`
+1. **Build**: `.\deploy.ps1` (choose option 2 or 3)
+2. **Deploy**: Portainer → Stacks → Add Stack → Paste `docker-compose.yml` (from root)
+3. **Access**: CMS at `http://your-server-ip:3000/admin`, Site at `http://your-server-ip:8080`
 
 ## Local Development (3 Steps)
 

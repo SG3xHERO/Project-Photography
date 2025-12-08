@@ -1,0 +1,23 @@
+# Photography Site - Docker Deployment
+node_modules
+.env
+*.log
+.DS_Store
+.git
+.gitignore
+README*.md
+*.md
+!photography-cms/
+photography-cms/node_modules
+photography-cms/dist
+photography-cms/build
+photography-cms/.env
+my-motorcycle-cms/
+admin.html
+api.js
+api.js.disabled
+config.js
+script.js
+styles.css
+index.html
+SUMMARY.md
