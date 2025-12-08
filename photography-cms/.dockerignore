@@ -3,3 +3,10 @@ dist
 build
 media
 *.log
+.env
+.env.local
+.git
+.gitignore
+README.md
+*.md
+!DEPLOYMENT.md
