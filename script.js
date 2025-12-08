@@ -111,6 +111,187 @@
   });
 
   // ==========================================
+  // Load and Apply Site Settings
+  // ==========================================
+  async function loadSiteSettings() {
+    try {
+      const response = await fetch(`${API_BASE}/globals/siteSettings`);
+      if (!response.ok) throw new Error('Failed to load settings');
+      
+      const data = await response.json();
+      applySiteSettings(data);
+    } catch (error) {
+      console.log('Using default site settings');
+    }
+  }
+
+  function applySiteSettings(settings) {
+    // Hero Section
+    if (settings.hero) {
+      if (settings.hero.badge) {
+        $('.hero-badge span').text(settings.hero.badge);
+      }
+      if (settings.hero.title) {
+        $('.hero-title .gradient-text').text(settings.hero.title);
+      }
+      if (settings.hero.subtitle) {
+        $('.hero-subtitle').text(settings.hero.subtitle);
+      }
+      if (settings.hero.description) {
+        $('.hero-text').text(settings.hero.description);
+      }
+      if (settings.hero.primaryButtonText) {
+        $('.hero-actions .btn-primary').contents().last()[0].textContent = settings.hero.primaryButtonText;
+      }
+      if (settings.hero.secondaryButtonText) {
+        $('.hero-actions .btn-outline').contents().last()[0].textContent = settings.hero.secondaryButtonText;
+      }
+    }
+
+    // About Section
+    if (settings.about) {
+      if (settings.about.sectionLabel) {
+        $('.about-section .section-label').text(settings.about.sectionLabel);
+      }
+      if (settings.about.title) {
+        $('.about-section .section-title').html(`${settings.about.title.split(' ').slice(0, -2).join(' ')} <span class="gradient-text">${settings.about.title.split(' ').slice(-2).join(' ')}</span>`);
+      }
+      if (settings.about.paragraph1) {
+        $('.about-text p').first().text(settings.about.paragraph1);
+      }
+      if (settings.about.paragraph2) {
+        $('.about-text p').last().text(settings.about.paragraph2);
+      }
+      if (settings.about.image?.sizes?.card?.url) {
+        $('.about-image img').attr('src', `${API_BASE.replace('/api', '')}${settings.about.image.sizes.card.url}`);
+      } else if (settings.about.imageFallbackUrl) {
+        $('.about-image img').attr('src', settings.about.imageFallbackUrl);
+      }
+
+      // Update feature items
+      if (settings.about.features && settings.about.features.length > 0) {
+        const $featureContainer = $('.about-features');
+        $featureContainer.empty();
+        
+        settings.about.features.forEach(feature => {
+          const iconSVG = getFeatureIcon(feature.icon);
+          $featureContainer.append(`
+            <div class="feature-item">
+              <div class="feature-icon">
+                ${iconSVG}
+              </div>
+              <div class="feature-text">
+                <h4>${feature.title}</h4>
+                <p>${feature.description}</p>
+              </div>
+            </div>
+          `);
+        });
+      }
+    }
+
+    // Other Projects Section
+    if (settings.otherProjects) {
+      if (settings.otherProjects.sectionLabel) {
+        $('.sister-sites-section .section-label').text(settings.otherProjects.sectionLabel);
+      }
+      if (settings.otherProjects.title) {
+        $('.sister-sites-section .section-title').text(settings.otherProjects.title);
+      }
+      if (settings.otherProjects.description) {
+        $('.sister-sites-section .section-description').text(settings.otherProjects.description);
+      }
+
+      // Update projects
+      if (settings.otherProjects.projects && settings.otherProjects.projects.length > 0) {
+        const $projectGrid = $('.project-grid');
+        $projectGrid.empty();
+        
+        settings.otherProjects.projects.forEach(project => {
+          const imageUrl = project.image?.sizes?.card?.url 
+            ? `${API_BASE.replace('/api', '')}${project.image.sizes.card.url}`
+            : project.imageFallbackUrl || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800';
+          
+          $projectGrid.append(`
+            <article class="project-card">
+              <div class="project-image">
+                <img src="${imageUrl}" alt="${project.title}" loading="lazy">
+              </div>
+              <div class="project-content">
+                <h3 class="project-title">${project.title}</h3>
+                <p class="project-description">${project.description}</p>
+                <div class="project-footer">
+                  <a href="${project.url}" class="project-link" target="_blank" rel="noopener">
+                    ${project.buttonText || 'Visit Site'}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+          `);
+        });
+      }
+    }
+
+    // Footer
+    if (settings.footer) {
+      if (settings.footer.description) {
+        $('.footer-about p').text(settings.footer.description);
+      }
+      if (settings.footer.copyrightText) {
+        $('.footer-bottom p').html(`&copy; ${settings.footer.copyrightText}`);
+      }
+      if (settings.footer.links && settings.footer.links.length > 0) {
+        const $footerLinks = $('.footer-links ul');
+        $footerLinks.empty();
+        settings.footer.links.forEach(link => {
+          $footerLinks.append(`<li><a href="${link.url}" target="_blank">${link.text}</a></li>`);
+        });
+      }
+    }
+
+    // Social Links
+    if (settings.socialLinks && settings.socialLinks.length > 0) {
+      const $socialLinks = $('.footer-social');
+      $socialLinks.empty();
+      settings.socialLinks.forEach(social => {
+        const iconSVG = getSocialIcon(social.platform);
+        $socialLinks.append(`
+          <a href="${social.url}" target="_blank" rel="noopener" aria-label="${social.platform}">
+            ${iconSVG}
+          </a>
+        `);
+      });
+    }
+  }
+
+  function getFeatureIcon(iconType) {
+    const icons = {
+      camera: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>',
+      shield: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+      heart: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>',
+      star: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+      zap: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+    };
+    return icons[iconType] || icons.camera;
+  }
+
+  function getSocialIcon(platform) {
+    const icons = {
+      instagram: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>',
+      twitter: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>',
+      facebook: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>',
+      youtube: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>',
+      linkedin: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>',
+      github: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>',
+    };
+    return icons[platform] || '';
+  }
+
+  // ==========================================
   // Load Featured Photos
   // ==========================================
   async function loadFeaturedPhotos() {
@@ -521,6 +702,7 @@
   // Initialize Everything
   // ==========================================
   function init() {
+    loadSiteSettings();
     loadFeaturedPhotos();
     loadAlbums();
     setupLazyLoading();
