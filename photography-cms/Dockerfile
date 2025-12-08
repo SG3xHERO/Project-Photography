@@ -31,10 +31,12 @@ ENV DATABASE_URI=mongodb://localhost:27017/build-placeholder
 # Debug: List files before build
 RUN echo "========== Files before build ==========" && \
     ls -la && \
-    echo "Working directory: $(pwd)"
+    echo "Working directory: $(pwd)" && \
+    echo "Checking next.config.mjs:" && cat next.config.mjs
 
-# Build Next.js application (simplified without cross-env)
-RUN npm run build
+# Build Next.js application - run directly
+RUN echo "========== Building Next.js ==========" && \
+    ./node_modules/.bin/next build
 
 # Debug: Check what was created
 RUN echo "========== Files after build ==========" && \
