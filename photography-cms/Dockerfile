@@ -1,12 +1,11 @@
-# Build stage
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (use npm install instead of npm ci)
+# Install ALL dependencies (production + dev needed for Payload)
 RUN npm install
 
 # Copy source files
@@ -15,20 +14,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install production dependencies
-RUN npm install --production
-
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/build ./build
+# Remove dev dependencies after build
+RUN npm prune --production
 
 # Expose port
 EXPOSE 3000
