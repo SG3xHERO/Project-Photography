@@ -20,7 +20,7 @@ export default buildConfig({
     {
       slug: 'media',
       upload: {
-        staticDir: path.resolve(__dirname, '../media'),
+        staticDir: './media',
         mimeTypes: ['image/*'],
       },
       fields: [
@@ -70,7 +70,7 @@ export default buildConfig({
   ],
   editor: lexicalEditor(),
   typescript: {
-    outputFile: path.resolve(__dirname, '../payload-types.ts'),
+    outputFile: path.resolve(process.cwd(), 'payload-types.ts'),
   },
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || 'mongodb://localhost:27017/photography-cms',
