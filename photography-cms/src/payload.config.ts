@@ -11,6 +11,16 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || 'your-secret-key-change-in-production',
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  cors: [
+    'https://photos.benfoggon.com',
+    'https://benfoggon.com',
+    'http://localhost:*',
+  ],
+  csrf: [
+    'https://photos.benfoggon.com',
+    'https://benfoggon.com',
+    'http://localhost:*',
+  ],
   admin: {
     user: 'users',
     importMap: {
