@@ -1,6 +1,7 @@
 node_modules
 dist
 build
+.next
 .env
 *.log
 .DS_Store
@@ -10,3 +11,4 @@ media
 *~
 .idea
 .vscode
+next-env.d.ts
