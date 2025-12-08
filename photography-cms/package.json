@@ -2,6 +2,7 @@
   "name": "photography-cms",
   "version": "1.0.0",
   "description": "Payload CMS for Photography Portfolio",
+  "type": "module",
   "main": "dist/server.js",
   "scripts": {
     "dev": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts nodemon",

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import payload from 'payload'
-import config from './payload.config'
+import config from './payload.config.js'
 
 dotenv.config()
 
