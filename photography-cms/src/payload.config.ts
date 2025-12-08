@@ -1,7 +1,7 @@
 import path from 'path'
 import { buildConfig } from 'payload/config'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { slateEditor } from '@payloadcms/richtext-slate'
 
 // Collections
 import { Users } from './collections/Users'
@@ -23,7 +23,7 @@ export default buildConfig({
   },
   collections: [Users, Photos, Albums, Media],
   globals: [SiteSettings],
-  editor: lexicalEditor({}),
+  editor: slateEditor({}),
   typescript: {
     outputFile: path.resolve(__dirname, '../payload-types.ts'),
   },
