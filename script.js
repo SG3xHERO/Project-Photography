@@ -7,7 +7,7 @@
   'use strict';
 
   // Configuration
-  const API_BASE = 'https://cms.projectnetworks.co.uk/api'; // Your Strapi CMS or new API
+  const API_BASE = 'https://cms.benfoggon.co.uk/api'; // Your Strapi CMS or new API
   let currentLightboxIndex = 0;
   let currentPhotos = [];
 
