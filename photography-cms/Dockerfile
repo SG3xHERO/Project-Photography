@@ -35,17 +35,12 @@ RUN echo "========== Files before build ==========" && \
     echo "Checking next.config.mjs:" && cat next.config.mjs && \
     echo "Checking package.json scripts:" && cat package.json | grep -A 5 '"scripts"'
 
-# Build Next.js application - capture all output
-RUN echo "========== Building Next.js ==========" && \
-    ./node_modules/.bin/next build 2>&1 || { \
-        echo "BUILD FAILED - Checking for common issues:"; \
-        echo "Node version:"; node --version; \
-        echo "NPM version:"; npm --version; \
-        echo "Next.js exists?"; ls -la node_modules/.bin/next; \
-        echo "Trying to get error details..."; \
-        ./node_modules/.bin/next build 2>&1 | head -50; \
-        exit 1; \
-    }
+# Build Next.js application - show full output
+RUN echo "========== Node Info ==========" && \
+    node --version && \
+    npm --version && \
+    echo "========== Building Next.js ==========" && \
+    ./node_modules/.bin/next build
 
 # Debug: Check what was created
 RUN echo "========== Files after build ==========" && \
