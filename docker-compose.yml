@@ -55,6 +55,29 @@ services:
       - "traefik.http.routers.photography-cms.rule=Host(`cms.yourdomain.com`)"
       - "traefik.http.services.photography-cms.loadbalancer.server.port=3000"
 
+  frontend:
+    image: nginx:alpine
+    container_name: photography-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./script.js:/usr/share/nginx/html/script.js:ro
+      - ./styles.css:/usr/share/nginx/html/styles.css:ro
+      - ./api.js:/usr/share/nginx/html/api.js:ro
+      - ./data:/usr/share/nginx/html/data:ro
+      - ./favicons:/usr/share/nginx/html/favicons:ro
+    networks:
+      - photography-network
+    depends_on:
+      - cms
+    labels:
+      - "com.photography.service=frontend"
+      - "traefik.enable=true"
+      - "traefik.http.routers.photography-frontend.rule=Host(`photos.yourdomain.com`)"
+      - "traefik.http.services.photography-frontend.loadbalancer.server.port=80"
+
 volumes:
   photography-mongodb-data:
     driver: local
