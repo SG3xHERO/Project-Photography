@@ -35,13 +35,16 @@ RUN echo "Files in /app:" && ls -la && \
 # Build Next.js application
 RUN npm run build 2>&1 | tee build.log || (cat build.log && exit 1)
 
-# Debug: List build output
-RUN echo "Build completed. Checking .next directory:" && \
+# Debug: List build output and verify it's complete
+RUN echo "========== Build completed. Checking output ==========" && \
+    ls -la && \
+    echo "========== Checking .next directory ==========" && \
     ls -la .next/ && \
-    echo "Checking for standalone:" && \
-    ls -la .next/standalone/ || echo "Standalone not found!" && \
-    echo "Checking for static:" && \
-    ls -la .next/static/ || echo "Static not found!"
+    echo "========== Checking .next/BUILD_ID ==========" && \
+    cat .next/BUILD_ID && \
+    echo "========== Checking .next/server ==========" && \
+    ls -la .next/server/ && \
+    echo "========== Build verification complete =========="
 
 # Stage 3: Production
 FROM node:18-alpine AS runner
@@ -56,28 +59,28 @@ ENV PORT=3000
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files for production (as root, then we'll fix ownership)
-COPY --from=builder /app/next.config.mjs ./next.config.mjs
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
+# Copy necessary files for production
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./next.config.mjs
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/src ./src
+COPY --from=builder --chown=nextjs:nodejs /app/app ./app
 
-# Copy source files needed at runtime
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/app ./app
+# CRITICAL: Copy the .next build output - this MUST exist from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 
-# Copy the .next build output
-COPY --from=builder /app/.next ./.next
-
-# Debug: Verify .next directory was copied
+# Debug: Verify .next directory was copied to runner
 RUN ls -la && \
-    echo "Checking .next:" && ls -la .next/ && \
-    echo "Checking .next/server:" && ls -la .next/server/ && \
-    echo "Checking for BUILD_ID:" && cat .next/BUILD_ID || echo "BUILD_ID not found!"
+    echo "========== Checking .next in RUNNER ==========" && \
+    ls -la .next/ && \
+    echo "========== Checking BUILD_ID in RUNNER ==========" && \
+    cat .next/BUILD_ID && \
+    echo "========== Checking .next/server in RUNNER ==========" && \
+    ls -la .next/server/
 
-# Create media directory and fix all permissions
-RUN mkdir -p ./media && \
-    chown -R nextjs:nodejs ./media ./public ./.next ./src ./app
+# Create media directory
+RUN mkdir -p ./media && chown nextjs:nodejs ./media
 
 # Switch to non-root user
 USER nextjs
