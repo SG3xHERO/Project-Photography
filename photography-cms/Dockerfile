@@ -32,11 +32,20 @@ ENV DATABASE_URI=mongodb://localhost:27017/build-placeholder
 RUN echo "========== Files before build ==========" && \
     ls -la && \
     echo "Working directory: $(pwd)" && \
-    echo "Checking next.config.mjs:" && cat next.config.mjs
+    echo "Checking next.config.mjs:" && cat next.config.mjs && \
+    echo "Checking package.json scripts:" && cat package.json | grep -A 5 '"scripts"'
 
-# Build Next.js application - run directly
+# Build Next.js application - capture all output
 RUN echo "========== Building Next.js ==========" && \
-    ./node_modules/.bin/next build
+    ./node_modules/.bin/next build 2>&1 || { \
+        echo "BUILD FAILED - Checking for common issues:"; \
+        echo "Node version:"; node --version; \
+        echo "NPM version:"; npm --version; \
+        echo "Next.js exists?"; ls -la node_modules/.bin/next; \
+        echo "Trying to get error details..."; \
+        ./node_modules/.bin/next build 2>&1 | head -50; \
+        exit 1; \
+    }
 
 # Debug: Check what was created
 RUN echo "========== Files after build ==========" && \
