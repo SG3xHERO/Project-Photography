@@ -6,8 +6,8 @@
 (function($) {
   'use strict';
 
-  // Configuration
-  const API_BASE = 'https://cms.benfoggon.co.uk/api'; // Your Strapi CMS or new API
+  // Configuration - Payload CMS
+  const API_BASE = 'https://cms.benfoggon.com/api'; // Payload CMS
   let currentLightboxIndex = 0;
   let currentPhotos = [];
 
@@ -117,17 +117,24 @@
     const featuredGrid = $('#featured-grid');
     
     try {
-      // Try to load from your existing API
-      const response = await fetch(`${API_BASE}/featured-photos?populate=*`);
+      // Load from Payload CMS - featured photos with depth to populate image
+      const response = await fetch(`${API_BASE}/photos?where[featured][equals]=true&depth=1&limit=6`);
       
       if (!response.ok) {
         throw new Error('API not available');
       }
       
       const data = await response.json();
-      displayFeaturedPhotos(data.data);
+      
+      // Check if we have photos from CMS
+      if (data.docs && data.docs.length > 0) {
+        displayFeaturedPhotos(data.docs);
+      } else {
+        console.log('No featured photos in CMS, loading demo...');
+        loadDemoFeaturedPhotos();
+      }
     } catch (error) {
-      console.log('Loading demo photos...');
+      console.log('Loading demo photos...', error);
       // Fallback to demo data
       loadDemoFeaturedPhotos();
     }
@@ -194,9 +201,28 @@
     currentPhotos = photos;
 
     photos.forEach((photo, index) => {
-      const imageUrl = photo.image || photo.attributes?.image?.data?.attributes?.url || photo.url;
-      const title = photo.title || photo.attributes?.title || 'Untitled';
-      const description = photo.description || photo.attributes?.description || '';
+      // Handle Payload CMS image format
+      let imageUrl = '';
+      if (photo.image) {
+        if (typeof photo.image === 'string') {
+          imageUrl = photo.image;
+        } else if (photo.image.sizes && photo.image.sizes.card) {
+          imageUrl = photo.image.sizes.card.url;
+        } else if (photo.image.url) {
+          imageUrl = photo.image.url;
+        }
+        // Make sure URL is absolute
+        if (imageUrl && !imageUrl.startsWith('http')) {
+          imageUrl = API_BASE.replace('/api', '') + imageUrl;
+        }
+      }
+      // Fallback for demo data format
+      if (!imageUrl) {
+        imageUrl = photo.url || 'https://via.placeholder.com/800x600';
+      }
+      
+      const title = photo.title || 'Untitled';
+      const description = photo.description || '';
       
       const photoCard = `
         <article class="photo-card" data-index="${index}">
@@ -225,16 +251,24 @@
     const albumsGrid = $('#albums-grid');
     
     try {
-      const response = await fetch(`${API_BASE}/albums?populate=*`);
+      // Load from Payload CMS with depth to populate cover image
+      const response = await fetch(`${API_BASE}/albums?depth=1&limit=10`);
       
       if (!response.ok) {
         throw new Error('API not available');
       }
       
       const data = await response.json();
-      displayAlbums(data.data);
+      
+      // Check if we have albums from CMS
+      if (data.docs && data.docs.length > 0) {
+        displayAlbums(data.docs);
+      } else {
+        console.log('No albums in CMS, loading demo...');
+        loadDemoAlbums();
+      }
     } catch (error) {
-      console.log('Loading demo albums...');
+      console.log('Loading demo albums...', error);
       loadDemoAlbums();
     }
   }
@@ -288,14 +322,33 @@
     }
 
     albums.forEach(album => {
-      const coverUrl = album.cover || album.attributes?.cover?.data?.attributes?.url || album.coverImage;
-      const title = album.title || album.attributes?.title || 'Untitled Album';
-      const description = album.description || album.attributes?.description || '';
-      const photoCount = album.photoCount || album.attributes?.photoCount || 0;
-      const date = album.date || album.attributes?.date || '';
+      // Handle Payload CMS cover image format
+      let coverUrl = '';
+      if (album.coverImage) {
+        if (typeof album.coverImage === 'string') {
+          coverUrl = album.coverImage;
+        } else if (album.coverImage.sizes && album.coverImage.sizes.card) {
+          coverUrl = album.coverImage.sizes.card.url;
+        } else if (album.coverImage.url) {
+          coverUrl = album.coverImage.url;
+        }
+        // Make sure URL is absolute
+        if (coverUrl && !coverUrl.startsWith('http')) {
+          coverUrl = API_BASE.replace('/api', '') + coverUrl;
+        }
+      }
+      // Fallback for demo data
+      if (!coverUrl) {
+        coverUrl = album.cover || 'https://via.placeholder.com/800x600';
+      }
+      
+      const title = album.title || 'Untitled Album';
+      const description = album.description || '';
+      const photoCount = album.photoCount || 0;
+      const date = album.publishedDate ? new Date(album.publishedDate).getFullYear() : '';
       
       const albumCard = `
-        <article class="album-card" data-album-id="${album.id}">
+        <article class="album-card" data-album-id="${album.id}" data-album-slug="${album.slug || ''}">
           <div class="album-image">
             <img src="${coverUrl}" alt="${title}" loading="lazy">
             <div class="album-badge">
@@ -323,8 +376,9 @@
     // Attach click handlers for albums
     $('.album-card').on('click', function() {
       const albumId = $(this).data('album-id');
+      const albumSlug = $(this).data('album-slug');
       // You can implement album view functionality here
-      console.log('Opening album:', albumId);
+      console.log('Opening album:', albumId, albumSlug);
     });
   }
 
@@ -347,9 +401,29 @@
     if (!currentPhotos || currentPhotos.length === 0) return;
 
     const photo = currentPhotos[currentLightboxIndex];
-    const imageUrl = photo.image || photo.attributes?.image?.data?.attributes?.url || photo.url;
-    const title = photo.title || photo.attributes?.title || 'Untitled';
-    const description = photo.description || photo.attributes?.description || '';
+    
+    // Handle Payload CMS image format for lightbox (use full size)
+    let imageUrl = '';
+    if (photo.image) {
+      if (typeof photo.image === 'string') {
+        imageUrl = photo.image;
+      } else if (photo.image.sizes && photo.image.sizes.full) {
+        imageUrl = photo.image.sizes.full.url;
+      } else if (photo.image.url) {
+        imageUrl = photo.image.url;
+      }
+      // Make sure URL is absolute
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        imageUrl = API_BASE.replace('/api', '') + imageUrl;
+      }
+    }
+    // Fallback for demo data
+    if (!imageUrl) {
+      imageUrl = photo.url || '';
+    }
+    
+    const title = photo.title || 'Untitled';
+    const description = photo.description || '';
 
     $('#lightbox-image').attr('src', imageUrl).attr('alt', title);
     $('#lightbox-title').text(title);
