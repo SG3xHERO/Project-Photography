@@ -1,4 +1,5 @@
-import { withPayload } from '@payloadcms/next/withPayload'
+// Temporarily disabled withPayload to debug build issues
+// import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -8,6 +9,13 @@ const nextConfig = {
   experimental: {
     reactCompiler: false,
   },
+  
+  // Webpack config to handle Payload
+  webpack: (config) => {
+    config.externals = [...(config.externals || []), 'sharp']
+    return config
+  },
 }
 
-export default withPayload(nextConfig)
+export default nextConfig
+// export default withPayload(nextConfig)
