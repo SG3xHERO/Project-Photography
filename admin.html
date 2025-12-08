@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Manager - BF Photography</title>
+  <link rel="stylesheet" href="styles-new.css">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 100px auto 50px;
+      padding: 40px;
+      background: var(--color-surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+    }
+    
+    .admin-header {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    
+    .form-section {
+      background: var(--color-surface-alt);
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 30px;
+      border: 1px solid var(--color-border);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: var(--font-size-base);
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    .data-display {
+      background: var(--color-background);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+    
+    .data-display pre {
+      margin: 0;
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    
+    .alert {
+      padding: 15px 20px;
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .alert.show {
+      display: block;
+    }
+    
+    .alert-success {
+      background: rgba(0, 245, 100, 0.1);
+      border: 1px solid rgba(0, 245, 100, 0.3);
+      color: #00f564;
+    }
+    
+    .alert-info {
+      background: rgba(0, 113, 248, 0.1);
+      border: 1px solid rgba(0, 113, 248, 0.3);
+      color: #3d9eff;
+    }
+    
+    .photo-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .preview-card {
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .preview-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+    }
+    
+    .preview-card h4 {
+      font-size: var(--font-size-sm);
+      margin-bottom: 5px;
+    }
+    
+    .preview-card button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: rgba(244, 44, 4, 0.2);
+      border: 1px solid #f42c04;
+      color: #f42c04;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: var(--font-size-xs);
+    }
+    
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--color-border);
+      padding-bottom: 10px;
+    }
+    
+    .tab-btn {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      position: relative;
+      transition: color var(--transition-base);
+    }
+    
+    .tab-btn.active {
+      color: var(--color-primary);
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+  <div class="gradient-bg">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+  </div>
+
+  <nav class="main-nav">
+    <div class="container nav-container">
+      <a href="index-new.html" class="logo">
+        <span class="logo-text">BF</span>
+        <span class="logo-badge">Admin</span>
+      </a>
+      <div class="nav-links">
+        <a href="index-new.html" class="nav-link">View Site</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1 class="section-title">Photo <span class="gradient-text">Manager</span></h1>
+      <p class="section-description">Manage your photography portfolio without a CMS</p>
+    </div>
+
+    <div class="alert alert-info" id="infoAlert">
+      <strong>💡 How it works:</strong> Add photos below, then copy the generated JSON to your <code>data/photos.json</code> file.
+    </div>
+
+    <div class="alert alert-success" id="successAlert">
+      <strong>✅ Success!</strong> Photo added to preview. Don't forget to copy the JSON below!
+    </div>
+
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="featured">Featured Photos</button>
+      <button class="tab-btn" data-tab="albums">Albums</button>
+      <button class="tab-btn" data-tab="export">Export Data</button>
+    </div>
+
+    <!-- Featured Photos Tab -->
+    <div class="tab-content active" id="featured-tab">
+      <div class="form-section">
+        <h3 style="margin-bottom: 20px;">Add Featured Photo</h3>
+        <form id="photoForm">
+          <div class="form-group">
+            <label for="photoTitle">Title *</label>
+            <input type="text" id="photoTitle" required placeholder="e.g., Track Day Excellence">
+          </div>
+          
+          <div class="form-group">
+            <label for="photoDescription">Description</label>
+            <textarea id="photoDescription" placeholder="Brief description of the photo..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoImage">Image URL * (Cloudinary, Imgur, or direct link)</label>
+            <input type="url" id="photoImage" required placeholder="https://res.cloudinary.com/your-cloud/image/upload/photo.jpg">
+            <small style="color: var(--color-text-subtle); display: block; margin-top: 5px;">
+              💡 Upload to <a href="https://cloudinary.com" target="_blank" style="color: var(--color-primary);">Cloudinary</a> or 
+              <a href="https://imgur.com" target="_blank" style="color: var(--color-primary);">Imgur</a> first
+            </small>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoCategory">Category</label>
+            <select id="photoCategory">
+              <option value="Racing">Racing</option>
+              <option value="Custom">Custom</option>
+              <option value="Adventure">Adventure</option>
+              <option value="Classic">Classic</option>
+              <option value="Detail">Detail</option>
+              <option value="Street">Street</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoTags">Tags (comma-separated)</label>
+            <input type="text" id="photoTags" placeholder="racing, track, speed">
+          </div>
+          
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Add Photo</button>
+            <button type="button" class="btn btn-outline" onclick="clearPhotoForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="form-section">
+        <h3 style="margin-bottom: 15px;">Current Featured Photos</h3>
+        <div class="photo-preview" id="photoPreview"></div>
+      </div>
+    </div>
+
+    <!-- Albums Tab -->
+    <div class="tab-content" id="albums-tab">
+      <div class="form-section">
+        <h3 style="margin-bottom: 20px;">Add Album</h3>
+        <form id="albumForm">
+          <div class="form-group">
+            <label for="albumTitle">Album Title *</label>
+            <input type="text" id="albumTitle" required placeholder="e.g., Racing Season 2024">
+          </div>
+          
+          <div class="form-group">
+            <label for="albumDescription">Description</label>
+            <textarea id="albumDescription" placeholder="Album description..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="albumCover">Cover Image URL *</label>
+            <input type="url" id="albumCover" required placeholder="https://...">
+          </div>
+          
+          <div class="form-group">
+            <label for="albumCount">Number of Photos</label>
+            <input type="number" id="albumCount" value="0" min="0">
+          </div>
+          
+          <div class="form-group">
+            <label for="albumDate">Year/Date</label>
+            <input type="text" id="albumDate" placeholder="2024">
+          </div>
+          
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Add Album</button>
+            <button type="button" class="btn btn-outline" onclick="clearAlbumForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="form-section">
+        <h3 style="margin-bottom: 15px;">Current Albums</h3>
+        <div class="photo-preview" id="albumPreview"></div>
+      </div>
+    </div>
+
+    <!-- Export Tab -->
+    <div class="tab-content" id="export-tab">
+      <div class="form-section">
+        <h3 style="margin-bottom: 15px;">📥 Export Your Data</h3>
+        <p style="color: var(--color-text-muted); margin-bottom: 20px;">
+          Copy the JSON below and paste it into your <code>data/photos.json</code> file, then commit and push to deploy!
+        </p>
+        
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="copyToClipboard()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy JSON
+          </button>
+          <button class="btn btn-outline" onclick="downloadJSON()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download File
+          </button>
+        </div>
+        
+        <div class="data-display">
+          <pre id="jsonOutput">{
+  "featured": [],
+  "albums": []
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    let photos = [];
+    let albums = [];
+
+    // Load from localStorage if available
+    if (localStorage.getItem('bfPhotos')) {
+      photos = JSON.parse(localStorage.getItem('bfPhotos'));
+    }
+    if (localStorage.getItem('bfAlbums')) {
+      albums = JSON.parse(localStorage.getItem('bfAlbums'));
+    }
+
+    // Tab switching
+    $('.tab-btn').on('click', function() {
+      const tab = $(this).data('tab');
+      $('.tab-btn').removeClass('active');
+      $(this).addClass('active');
+      $('.tab-content').removeClass('active');
+      $(`#${tab}-tab`).addClass('active');
+    });
+
+    // Photo form submission
+    $('#photoForm').on('submit', function(e) {
+      e.preventDefault();
+      
+      const photo = {
+        id: photos.length + 1,
+        title: $('#photoTitle').val(),
+        description: $('#photoDescription').val(),
+        image: $('#photoImage').val(),
+        category: $('#photoCategory').val(),
+        tags: $('#photoTags').val().split(',').map(t => t.trim()).filter(t => t),
+        date: new Date().toISOString().split('T')[0]
+      };
+      
+      photos.push(photo);
+      localStorage.setItem('bfPhotos', JSON.stringify(photos));
+      
+      showAlert('successAlert');
+      updatePhotoPreview();
+      updateExport();
+      clearPhotoForm();
+    });
+
+    // Album form submission
+    $('#albumForm').on('submit', function(e) {
+      e.preventDefault();
+      
+      const album = {
+        id: albums.length + 1,
+        title: $('#albumTitle').val(),
+        description: $('#albumDescription').val(),
+        cover: $('#albumCover').val(),
+        photoCount: parseInt($('#albumCount').val()) || 0,
+        date: $('#albumDate').val(),
+        slug: $('#albumTitle').val().toLowerCase().replace(/\s+/g, '-'),
+        photos: []
+      };
+      
+      albums.push(album);
+      localStorage.setItem('bfAlbums', JSON.stringify(albums));
+      
+      showAlert('successAlert');
+      updateAlbumPreview();
+      updateExport();
+      clearAlbumForm();
+    });
+
+    function showAlert(id) {
+      $('#' + id).addClass('show');
+      setTimeout(() => $('#' + id).removeClass('show'), 3000);
+    }
+
+    function clearPhotoForm() {
+      $('#photoForm')[0].reset();
+    }
+
+    function clearAlbumForm() {
+      $('#albumForm')[0].reset();
+    }
+
+    function updatePhotoPreview() {
+      const preview = $('#photoPreview');
+      preview.empty();
+      
+      if (photos.length === 0) {
+        preview.html('<p style="color: var(--color-text-muted);">No photos added yet</p>');
+        return;
+      }
+      
+      photos.forEach((photo, index) => {
+        const card = `
+          <div class="preview-card">
+            <img src="${photo.image}" alt="${photo.title}" onerror="this.src='https://via.placeholder.com/200x150?text=Error'">
+            <h4>${photo.title}</h4>
+            <p style="font-size: var(--font-size-xs); color: var(--color-text-subtle);">${photo.category}</p>
+            <button onclick="deletePhoto(${index})">Delete</button>
+          </div>
+        `;
+        preview.append(card);
+      });
+    }
+
+    function updateAlbumPreview() {
+      const preview = $('#albumPreview');
+      preview.empty();
+      
+      if (albums.length === 0) {
+        preview.html('<p style="color: var(--color-text-muted);">No albums added yet</p>');
+        return;
+      }
+      
+      albums.forEach((album, index) => {
+        const card = `
+          <div class="preview-card">
+            <img src="${album.cover}" alt="${album.title}" onerror="this.src='https://via.placeholder.com/200x150?text=Error'">
+            <h4>${album.title}</h4>
+            <p style="font-size: var(--font-size-xs); color: var(--color-text-subtle);">${album.photoCount} photos</p>
+            <button onclick="deleteAlbum(${index})">Delete</button>
+          </div>
+        `;
+        preview.append(card);
+      });
+    }
+
+    function deletePhoto(index) {
+      if (confirm('Delete this photo?')) {
+        photos.splice(index, 1);
+        localStorage.setItem('bfPhotos', JSON.stringify(photos));
+        updatePhotoPreview();
+        updateExport();
+      }
+    }
+
+    function deleteAlbum(index) {
+      if (confirm('Delete this album?')) {
+        albums.splice(index, 1);
+        localStorage.setItem('bfAlbums', JSON.stringify(albums));
+        updateAlbumPreview();
+        updateExport();
+      }
+    }
+
+    function updateExport() {
+      const data = {
+        featured: photos,
+        albums: albums,
+        settings: {
+          siteTitle: "BF Photography",
+          siteSubtitle: "Capturing the Spirit of the Ride",
+          contactEmail: "contact@benfoggon.com"
+        }
+      };
+      
+      $('#jsonOutput').text(JSON.stringify(data, null, 2));
+    }
+
+    function copyToClipboard() {
+      const text = $('#jsonOutput').text();
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Copied to clipboard! Paste it into data/photos.json');
+      });
+    }
+
+    function downloadJSON() {
+      const text = $('#jsonOutput').text();
+      const blob = new Blob([text], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'photos.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Initialize on load
+    $(document).ready(function() {
+      setTimeout(() => {
+        $('#infoAlert').addClass('show');
+      }, 500);
+      updatePhotoPreview();
+      updateAlbumPreview();
+      updateExport();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "site": {
+    "title": "BF Photography",
+    "subtitle": "Capturing the Spirit of Motorcycles",
+    "description": "Motorcycle photography showcasing racing, custom builds, and off-road adventures",
+    "author": "Ben Foggon",
+    "email": "contact@benfoggon.com",
+    "social": {
+      "instagram": "https://instagram.com/ben.onabike"
+    }
+  },
+  "about": {
+    "title": "About My Photography",
+    "content": "I'm passionate about capturing the raw energy and beauty of motorcycles. From track racing to custom builds, I document the culture and craftsmanship that makes motorcycling special. Each photo tells a story of speed, style, and freedom.",
+    "highlights": [
+      {
+        "icon": "camera",
+        "title": "Professional Quality",
+        "description": "High-resolution images perfect for prints and digital use"
+      },
+      {
+        "icon": "motorcycle",
+        "title": "Motorcycle Specialist",
+        "description": "Specialized in racing, custom builds, and adventure photography"
+      },
+      {
+        "icon": "heart",
+        "title": "Passion Driven",
+        "description": "Every shot captures the soul and spirit of the ride"
+      }
+    ]
+  },
+  "featured": [],
+  "albums": []
+}

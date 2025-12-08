@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: photography-cms-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: photography-cms
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - photography-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: photography-cms
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/photography-cms
+      DATABASE_URI: mongodb://mongodb:27017/photography-cms
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-http://localhost:3000}
+      PORT: 3000
+      NODE_ENV: production
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - photography-network
+    volumes:
+      - ./media:/app/media
+
+volumes:
+  mongodb_data:
+
+networks:
+  photography-network:
+    driver: bridge

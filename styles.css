@@ -1,0 +1,1792 @@
+/* Modern CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Properties */
+:root {
+  /* Colors */
+  --color-background: #0a0a0c;
+  --color-surface: #131316;
+  --color-surface-alt: #1a1a1f;
+  --color-primary: #f42c04;
+  --color-primary-transparent: rgba(244, 44, 4, 0.15);
+  --color-secondary: #2ee2fa;
+  --color-text: #ffffff;
+  --color-text-muted: rgba(255, 255, 255, 0.7);
+  --color-text-subtle: rgba(255, 255, 255, 0.5);
+  --color-border: rgba(255, 255, 255, 0.08);
+
+  /* Typography */
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-md: 1.125rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-3xl: 2.5rem;
+  --font-size-4xl: 3rem;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --space-10: 5rem;
+
+  /* Borders */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+
+  /* Effects */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+
+  /* Animations */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout */
+  --container-max-width: 1280px;
+  --header-height: 5rem;
+}
+
+/* Base Styles */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+}
+
+.container {
+  width: 90%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Noise overlay */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.2;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+p {
+  margin-bottom: var(--space-4);
+}
+
+/* Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+  transition: opacity var(--transition-fast);
+  opacity: 0;
+  border-radius: inherit;
+}
+
+.btn:hover::after {
+  opacity: 1;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #e12903;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 44, 4, 0.25);
+}
+
+.btn-text {
+  color: var(--color-text);
+  padding: var(--space-2) var(--space-3);
+}
+
+.btn-text:hover {
+  color: var(--color-primary);
+}
+
+.btn-outline {
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  background-color: transparent;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-large {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-md);
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.btn-icon.share {
+  color: var(--color-primary);
+  background-color: var(--color-primary-transparent);
+}
+
+.btn-icon.share:hover {
+  background-color: rgba(244, 44, 4, 0.25);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Social Media Links */
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.social-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.social-link:hover .social-icon {
+  color: var(--color-primary);
+}
+
+/* Navigation */
+.main-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(10, 10, 12, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000;
+  height: var(--header-height);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.logo {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  position: relative;
+}
+
+.logo::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-primary);
+  transform: scaleX(0.3);
+  transform-origin: left;
+  transition: transform var(--transition-normal);
+}
+
+.logo:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.nav-link {
+  font-weight: 500;
+  position: relative;
+  padding: var(--space-2) 0;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-primary);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--transition-normal);
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  padding-top: var(--header-height);
+  overflow: hidden;
+}
+
+.hero-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+      to right,
+      rgba(10, 10, 12, 0.9),
+      rgba(10, 10, 12, 0.6)
+    ),
+    url("/api/placeholder/1900/1000");
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+}
+
+.hero-content {
+  max-width: 650px;
+  animation: fadeInUp 1s ease-out;
+}
+
+.hero-title {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* Section Styles */
+section {
+  padding: var(--space-10) 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.section-label {
+  display: inline-block;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
+}
+
+.section-title {
+  font-size: var(--font-size-3xl);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}
+
+/* Featured Section */
+.featured-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-normal),
+    box-shadow var(--transition-normal);
+  position: relative;
+}
+
+.featured-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-xl);
+}
+
+.featured-image {
+  height: 500px;
+  overflow: hidden;
+}
+
+.featured-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.featured-card:hover .featured-image img {
+  transform: scale(1.05);
+}
+
+.featured-content {
+  padding: var(--space-6);
+  position: relative;
+}
+
+.meta-tag {
+  display: inline-block;
+  padding: var(--space-1) var(--space-3);
+  background-color: var(--color-primary);
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-3);
+}
+
+.featured-title {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.02em;
+}
+
+.featured-description {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+  max-width: 80%;
+}
+
+.featured-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-5);
+}
+
+.date {
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-sm);
+}
+
+/* Albums Section */
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-5);
+}
+
+.album-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  position: relative;
+  isolation: isolate;
+}
+
+.album-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.album-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.album-card:hover::before {
+  opacity: 1;
+}
+
+.album-image {
+  height: 180px;
+  overflow: hidden;
+  position: relative;
+}
+
+.album-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.album-image img.loaded {
+  opacity: 1;
+}
+
+/* Make sure the image-placeholder is properly hidden when image loads */
+.album-image img.loaded + .image-placeholder,
+.album-image img.loaded ~ .image-placeholder,
+.album-image .loaded + .image-placeholder {
+  display: none !important;
+}
+
+/* Position the placeholder properly */
+.image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+/* Hide placeholder when image is loaded */
+.album-image img.loaded + .image-placeholder,
+.album-image img.loaded ~ .image-placeholder {
+  display: none;
+}
+
+/* Make sure the image-error state stays visible when needed */
+.image-placeholder .image-error {
+  display: flex !important;
+}
+
+.album-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-3);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all var(--transition-normal);
+}
+
+.album-card:hover .album-image img {
+  transform: scale(1.05);
+}
+
+.album-card:hover .album-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.album-count {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.album-content {
+  padding: var(--space-4);
+}
+
+.album-title {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-description {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.album-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.album-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* About Section */
+.about-section {
+  background-color: var(--color-surface-alt);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.about-content {
+  padding-right: var(--space-6);
+}
+
+.about-text {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.about-image {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-xl);
+}
+
+.about-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: inherit;
+}
+
+/* Create Album Button */
+.create-album-btn {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(244, 44, 4, 0.3);
+  cursor: pointer;
+  z-index: 100;
+  transition: all var(--transition-fast);
+}
+
+.create-album-btn:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 10px 25px rgba(244, 44, 4, 0.4);
+}
+
+.create-album-btn .icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Photo Viewer */
+.photo-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.photo-viewer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.photo-container {
+  position: relative;
+  max-width: 90%;
+  max-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.photo-container img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.photo-nav {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nav-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.close-viewer {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.close-viewer:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.download-photo {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.download-photo:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.photo-info {
+  color: white;
+  text-align: center;
+  padding: 20px;
+  max-width: 80%;
+}
+
+.photo-title {
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+.photo-meta {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 768px) {
+  .photo-container {
+    max-width: 95%;
+  }
+
+  .nav-btn,
+  .close-viewer,
+  .download-photo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .photo-info {
+    padding: 10px;
+  }
+}
+
+/* Footer */
+.main-footer {
+  background-color: var(--color-surface);
+  padding: var(--space-8) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.footer-copyright {
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-sm);
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.footer-link {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+  color: var(--color-primary);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Media Queries */
+@media (max-width: 1024px) {
+  :root {
+    --font-size-4xl: 2.5rem;
+    --font-size-3xl: 2rem;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .about-content {
+    padding-right: 0;
+    order: 2;
+  }
+
+  .about-image {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --font-size-4xl: 2rem;
+    --font-size-3xl: 1.75rem;
+    --font-size-2xl: 1.5rem;
+  }
+
+  .hero {
+    min-height: 500px;
+  }
+
+  .featured-image {
+    height: 350px;
+  }
+
+  .featured-description {
+    max-width: 100%;
+  }
+
+  .album-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: var(--space-4);
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .album-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-content {
+    padding: var(--space-4);
+  }
+
+  .hero-content {
+    text-align: center;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 40px auto;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.error-message {
+  color: #ff4757;
+  text-align: center;
+  padding: var(--space-5);
+  background-color: rgba(255, 71, 87, 0.1);
+  border-radius: var(--radius-lg);
+  margin: var(--space-5) 0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.empty-state svg {
+  width: 60px;
+  height: 60px;
+  opacity: 0.5;
+  margin-bottom: var(--space-4);
+}
+
+/* Admin Button */
+.login-btn {
+  position: relative;
+}
+
+.login-btn::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  transition: width var(--transition-normal);
+}
+
+.login-btn:hover::after {
+  width: 80%;
+}
+
+/* Album Details Page Styles */
+.album-header {
+  margin-bottom: var(--space-8);
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+  transition: color var(--transition-fast);
+}
+
+.back-button:hover {
+  color: var(--color-primary);
+}
+
+.album-metadata {
+  display: flex;
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--space-4);
+}
+
+.photo-item {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 3/2;
+  cursor: pointer;
+  transition: transform var(--transition-normal);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.photo-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.photo-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
+}
+
+.page-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.page-btn.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.page-btn:hover:not(.active) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.page-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Shared Albums */
+.share-info {
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.share-url {
+  font-family: monospace;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  flex-grow: 1;
+  margin-right: var(--space-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Album Page View */
+.album-page-view {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.album-page-header {
+  background-color: rgba(10, 10, 12, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-4) 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Album view styling for consistency with landing page */
+
+/* Make album grid in album view match landing page */
+.photo-album-grid {
+  margin-top: var(--space-6);
+}
+
+/* Style photo cards like album cards for consistency */
+.photo-card {
+  cursor: pointer;
+}
+
+.photo-card .album-image {
+  height: 220px; /* Match the height of album cards on landing page */
+}
+
+.photo-card:hover .album-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Bottom spacing for album view */
+.album-bottom-spacing {
+  height: var(--space-10);
+  width: 100%;
+}
+
+/* Improve album page header */
+.album-page-header {
+  padding: var(--space-4) 0;
+  margin-bottom: var(--space-6);
+}
+
+.album-header {
+  margin-bottom: var(--space-6);
+}
+
+/* Improve back button visibility */
+.back-button {
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: all var(--transition-normal);
+}
+
+.back-button:hover {
+  background-color: var(--color-surface-alt);
+  transform: translateX(-5px);
+}
+
+/* Ensure mobile responsiveness */
+@media (max-width: 768px) {
+  .photo-album-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .photo-card .album-image {
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .photo-album-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .photo-card .album-image {
+    height: 150px;
+  }
+
+  .photo-card .album-content {
+    padding: var(--space-3);
+  }
+
+  .photo-card .album-title {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* Enhanced Portrait Photo Handling */
+
+/* Create a special class for portrait photos */
+.photo-card.portrait .album-image {
+  position: relative;
+}
+
+.photo-card.portrait .album-image img {
+  object-fit: contain;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.8
+  ); /* Dark background for portrait images */
+  padding: var(--space-2); /* Add some padding around portrait images */
+}
+
+/* Add a portrait indicator icon */
+.photo-card.portrait .album-image::after {
+  content: "";
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 24px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2' ry='2'%3E%3C/rect%3E%3C/svg%3E");
+  background-size: 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 2;
+}
+
+/* Customize photo viewer for portrait images */
+.photo-viewer.portrait-mode .photo-container {
+  max-width: 70%;
+  max-height: 90vh;
+}
+
+.photo-viewer.portrait-mode .photo-container img {
+  max-height: 90vh;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Adjust hover effect for portrait images */
+.photo-card.portrait:hover .album-image img {
+  transform: scale(1.02); /* Reduce the scale effect for portrait images */
+}
+
+/* Add subtle border to distinguish portrait photos */
+.photo-card.portrait {
+  border: 1px solid var(--color-primary-transparent);
+}
+
+/* Add additional visual indication in the overlay */
+.photo-card.portrait .album-overlay .album-count {
+  padding-left: 20px; /* Make space for the icon */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2' ry='2'%3E%3C/rect%3E%3C/svg%3E");
+  background-size: 14px;
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+
+/* For mobile, adjust the portrait photo display */
+@media (max-width: 768px) {
+  .photo-card.portrait .album-image {
+    height: 220px; /* Give more height to portrait photos on mobile */
+  }
+
+  .photo-viewer.portrait-mode .photo-container {
+    max-width: 90%;
+  }
+}
+
+/* Album Link Styles */
+.album-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.album-link:hover {
+  transform: none; /* Let the card handle the hover effect */
+}
+
+/* Share Button in Album Header */
+.album-page-header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-share-album {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-primary-transparent);
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-normal);
+}
+
+.btn-share-album:hover {
+  background-color: var(--color-primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-share-album .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Toast Notification */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast-message {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.toast-message.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* SEO and Technical Improvements */
+/* Hide this element visually but not from screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Add styling for portrait mode */
+.photo-viewer.portrait-mode .photo-container img {
+  max-height: 90vh;
+  width: auto;
+}
+
+/* Album Page Footer Styles */
+.album-page-footer {
+  margin-top: var(--space-10);
+  display: block !important; /* Override the display:none that applies to sections */
+}
+
+/* Ensure footer stays at the bottom if content is short */
+.album-page-view {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.album-page-view > .container {
+  flex: 1;
+}
+
+.album-bottom-spacing {
+  min-height: var(--space-6);
+}
+
+/* Image Loading Animation Styles */
+.image-loader-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface);
+  z-index: 2;
+  overflow: hidden;
+  transition: opacity 0.5s ease-out;
+}
+
+.image-loader {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+/* Pulsating circle animation */
+.image-loader::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-primary-transparent);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Camera icon */
+.image-loader::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f42c04' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'%3E%3C/path%3E%3Ccircle cx='12' cy='13' r='4'%3E%3C/circle%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Shimmer effect across the loader */
+.image-loader-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Animation for the pulsating circle */
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+/* Animation for the shimmer effect */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Hide the loader when the image is loaded */
+img.loaded + .image-loader-container {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Staggered loading animation for album grid */
+.album-grid .album-card,
+.photo-album-grid .photo-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: staggerFadeIn 0.5s ease-out forwards;
+}
+
+@keyframes staggerFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply staggered delay based on item index */
+.album-grid .album-card:nth-child(1),
+.photo-album-grid .photo-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.album-grid .album-card:nth-child(2),
+.photo-album-grid .photo-card:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.album-grid .album-card:nth-child(3),
+.photo-album-grid .photo-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.album-grid .album-card:nth-child(4),
+.photo-album-grid .photo-card:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.album-grid .album-card:nth-child(5),
+.photo-album-grid .photo-card:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.album-grid .album-card:nth-child(6),
+.photo-album-grid .photo-card:nth-child(6) {
+  animation-delay: 0.35s;
+}
+.album-grid .album-card:nth-child(7),
+.photo-album-grid .photo-card:nth-child(7) {
+  animation-delay: 0.4s;
+}
+.album-grid .album-card:nth-child(8),
+.photo-album-grid .photo-card:nth-child(8) {
+  animation-delay: 0.45s;
+}
+.album-grid .album-card:nth-child(n + 9),
+.photo-album-grid .photo-card:nth-child(n + 9) {
+  animation-delay: 0.5s;
+}
+
+/* Ensure animation container respects parent dimensions */
+.album-image,
+.featured-image {
+  position: relative;
+}
+
+/* Hero image loading state */
+.hero-backdrop::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--color-surface) 0%,
+    var(--color-surface-alt) 50%,
+    var(--color-surface) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradientShift 2s ease infinite;
+  z-index: -1;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .image-loader {
+    width: 30px;
+    height: 30px;
+  }
+
+  .image-loader::after {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Image placeholder and loading animations */
+.image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.photo-spinner {
+  width: 30px;
+  height: 30px;
+  border-width: 3px;
+}
+
+.image-error {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-error, #ff4d4d);
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Load more button styling */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-6) 0;
+}
+
+.load-more {
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.load-more:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.load-more:disabled {
+  background-color: var(--color-disabled, #cccccc);
+  cursor: not-allowed;
+}
+
+.photo-count-remaining {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.button-spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.all-loaded {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: var(--space-4) 0;
+}
+
+/* Grid loading state */
+.grid-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  width: 100%;
+}
+
+.grid-loading-state p {
+  margin-top: 10px;
+  color: var(--color-text-muted);
+}

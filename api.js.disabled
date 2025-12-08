@@ -1,0 +1,845 @@
+/**
+ * API Integration for Headless CMS
+ * This file handles all data fetching from the CMS
+ */
+
+class API {
+  static async fetch(endpoint, options = {}) {
+    try {
+      console.log(`Making API request to: ${endpoint}`);
+      const url = `${CONFIG.API.BASE_URL}${endpoint}`;
+      const defaultOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${CONFIG.API.TOKEN}`,
+        },
+      };
+
+      const mergedOptions = { ...defaultOptions, ...options };
+      console.log("Request options:", mergedOptions);
+
+      const response = await fetch(url, mergedOptions);
+
+      if (!response.ok) {
+        console.error(
+          `API request failed: ${response.status} ${response.statusText}`
+        );
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`API response for ${endpoint}:`, data);
+      return data;
+    } catch (error) {
+      console.error("API fetch error:", error, "for endpoint:", endpoint);
+      throw error;
+    }
+  }
+
+/**
+ * Get the complete URL for a media item - properly handles Strapi v4 media structure
+ * @param {Object} media - Media object from Strapi
+ * @returns {string} - Complete media URL
+ */
+static getMediaUrl(media) {
+  if (!media) return '/api/placeholder/400/300';
+  
+  try {
+    // For photos directly from the Photos endpoint (from your debug output)
+    if (media.image && media.image.url) {
+      const url = media.image.url;
+      return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+    }
+    
+    // Direct URL on the media object itself
+    if (media.url) {
+      const url = media.url;
+      return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+    }
+    
+    // Strapi v4 media structure
+    if (media.data && media.data.attributes && media.data.attributes.url) {
+      const url = media.data.attributes.url;
+      return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+    }
+
+    // Handle array data structure - sometimes Strapi returns an array
+    if (media.data && Array.isArray(media.data) && media.data[0]) {
+      if (media.data[0].attributes && media.data[0].attributes.url) {
+        const url = media.data[0].attributes.url;
+        return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+      }
+    }
+    
+    // Check for nested image object (common in Strapi responses)
+    if (media.image) {
+      // Recursively call getMediaUrl on the image field
+      return this.getMediaUrl(media.image);
+    }
+    
+    // Check for formats in Strapi v4 structure
+    if (media.data && media.data.attributes && media.data.attributes.formats) {
+      const formats = media.data.attributes.formats;
+      const formatPriority = ['large', 'medium', 'small', 'thumbnail'];
+      
+      for (const format of formatPriority) {
+        if (formats[format] && formats[format].url) {
+          const url = formats[format].url;
+          return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+        }
+      }
+    }
+    
+    console.warn('Could not extract URL from media object', media);
+    return '/api/placeholder/400/300';
+  } catch (error) {
+    console.error('Error in getMediaUrl:', error);
+    return '/api/placeholder/400/300';
+  }
+}
+
+/**
+ * Helper function to extract photo URL from different data structures
+ * @param {Object} photoObj - Photo object from API
+ * @returns {string} - URL for the photo
+ */
+static extractPhotoUrl(photoObj) {
+  try {
+    // Direct image field (from your debug output)
+    if (photoObj.image) {
+      // Handle Strapi v4 structure with data and attributes
+      if (photoObj.image.data && photoObj.image.data.attributes) {
+        const attrs = photoObj.image.data.attributes;
+        
+        // Direct URL in attributes
+        if (attrs.url) {
+          const url = attrs.url;
+          return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+        }
+        
+        // Check for formats in attributes
+        if (attrs.formats) {
+          const formatPriority = ['large', 'medium', 'small', 'thumbnail'];
+          for (const format of formatPriority) {
+            if (attrs.formats[format] && attrs.formats[format].url) {
+              const url = attrs.formats[format].url;
+              return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+            }
+          }
+        }
+      }
+      
+      // Direct URL in image object
+      if (photoObj.image.url) {
+        const url = photoObj.image.url;
+        return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+      }
+      
+      // Check formats if available
+      if (photoObj.image.formats) {
+        const formatPriority = ['large', 'medium', 'small', 'thumbnail'];
+        for (const format of formatPriority) {
+          if (photoObj.image.formats[format] && photoObj.image.formats[format].url) {
+            const url = photoObj.image.formats[format].url;
+            return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+          }
+        }
+      }
+    }
+    
+    // Check for direct URL
+    if (photoObj.url) {
+      return photoObj.url.startsWith('http') ? photoObj.url : `${CONFIG.API.MEDIA_URL}${photoObj.url}`;
+    }
+    
+    // Check for nested media structure
+    if (photoObj.media && photoObj.media.data) {
+      return this.getMediaUrl(photoObj.media);
+    }
+    
+    // NEW HANDLING FOR ADDITIONAL STRAPI STRUCTURES
+    // Check for nested image structures in Strapi v4
+    if (photoObj.image && photoObj.image.data) {
+      const imageData = photoObj.image.data;
+      if (imageData.attributes && imageData.attributes.url) {
+        const url = imageData.attributes.url;
+        return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+      }
+      
+      // Check for formats in nested data
+      if (imageData.attributes && imageData.attributes.formats) {
+        const formatPriority = ['large', 'medium', 'small', 'thumbnail'];
+        for (const format of formatPriority) {
+          if (imageData.attributes.formats[format] && imageData.attributes.formats[format].url) {
+            const url = imageData.attributes.formats[format].url;
+            return url.startsWith('http') ? url : `${CONFIG.API.MEDIA_URL}${url}`;
+          }
+        }
+      }
+    }
+    
+    console.warn('Could not extract URL from photo object:', photoObj);
+    return '/api/placeholder/800/600';
+  } catch (error) {
+    console.error('Error extracting photo URL:', error);
+    return '/api/placeholder/800/600';
+  }
+}
+
+/**
+ * Get a single album with its photos - properly structured for your Strapi setup
+ * @param {string|number} id - Album ID
+ * @returns {Promise<Object>} - Processed album data with photos
+ */
+static async getAlbum(id) {
+  try {
+    console.log(`Fetching album with ID: ${id}`);
+    
+    // Step 1: First try to get basic album info from albums endpoint
+    let albumInfo = null;
+    try {
+      const allAlbumsData = await this.fetch(`${CONFIG.API.ALBUMS}/${id}?populate=cover_image`);
+      console.log("Raw album response:", JSON.stringify(allAlbumsData, null, 2));
+      
+      if (allAlbumsData && allAlbumsData.data) {
+        const albumData = allAlbumsData.data;
+        const albumAttrs = albumData.attributes || albumData;
+        
+        // Improved title extraction with detailed logging and multiple fallbacks
+        let title = null;
+        
+        // Try multiple paths to find the title
+        if (albumAttrs.title) {
+          title = albumAttrs.title;
+          console.log(`Found title in attributes: "${title}"`);
+        } else if (albumData.title) {
+          title = albumData.title;
+          console.log(`Found title in data: "${title}"`);
+        } else if (albumData.attributes && albumData.attributes.title) {
+          title = albumData.attributes.title;
+          console.log(`Found title in data.attributes: "${title}"`);
+        } else {
+          // Check session storage as a last resort
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            const storedTitle = sessionStorage.getItem('currentAlbumTitle');
+            if (storedTitle) {
+              title = storedTitle;
+              console.log(`Using title from session storage: "${title}"`);
+            }
+          }
+          
+          // If still no title, use a default
+          if (!title) {
+            title = `Album ${id}`;
+            console.warn(`No title found, using default: "${title}"`);
+          }
+        }
+        
+        albumInfo = {
+          id: albumData.id,
+          title: title,
+          description: albumAttrs.description || '',
+          date: this.formatDate(albumAttrs.date || albumAttrs.createdAt || new Date()),
+          coverImage: albumAttrs.cover_image ? this.getMediaUrl(albumAttrs.cover_image) : '/api/placeholder/400/300',
+          photos: []
+        };
+        
+        console.log(`Album info created with title: "${albumInfo.title}"`);
+      }
+    } catch (error) {
+      console.error('Error getting album basic info:', error);
+    }
+    
+    // If we couldn't get album info, create a fallback
+    if (!albumInfo) {
+      console.warn(`Could not get album info from API, creating fallback for album ${id}`);
+      // Check if we have this album's title stored in session storage
+      let title = `Album ${id}`;
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        const storedTitle = sessionStorage.getItem('currentAlbumTitle');
+        if (storedTitle) {
+          title = storedTitle;
+          console.log(`Using title from session storage: "${title}"`);
+        }
+      }
+      
+      albumInfo = {
+        id: id,
+        title: title,
+        description: '',
+        date: this.formatDate(new Date()),
+        coverImage: '/api/placeholder/400/300',
+        photos: []
+      };
+    }
+    
+    try {
+      console.log(`Fetching photos for album ${id} using endpoint: ${CONFIG.API.PHOTOS}?filters[album][id][$eq]=${id}&populate=image`);
+      
+      const photosData = await this.fetch(`${CONFIG.API.PHOTOS}?filters[album][id][$eq]=${id}&populate=image`);
+      
+      if (photosData && photosData.data && Array.isArray(photosData.data)) {
+        console.log(`Found ${photosData.data.length} photos for album ${id}`);
+        
+        photosData.data.forEach((photo, index) => {
+          const photoAttrs = photo.attributes || photo;
+          
+          console.log(`Photo ${index} structure:`, JSON.stringify(photoAttrs));
+          
+          let photoUrl = this.extractPhotoUrl(photoAttrs);
+          
+          console.log(`Final photo URL: ${photoUrl}`);
+          
+          albumInfo.photos.push({
+            id: photo.id,
+            title: photoAttrs.title || `Photo ${index + 1}`,
+            description: photoAttrs.description || '',
+            date: this.formatDate(photoAttrs.date || photoAttrs.createdAt || new Date()),
+            url: photoUrl,
+            album: albumInfo.title // Include album title with each photo
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching photos for album:', error);
+    }
+    
+    if (albumInfo.photos.length === 0) {
+      console.warn('No photos found for album, using demo photos');
+      albumInfo.photos = DEMO_PHOTOS[id] || this.generatePlaceholderPhotos(5);
+    }
+    
+    // Store album title in session storage for persistence
+    if (typeof window !== 'undefined' && window.sessionStorage && albumInfo.title) {
+      sessionStorage.setItem('currentAlbumTitle', albumInfo.title);
+      console.log(`Stored album title in session storage: "${albumInfo.title}"`);
+    }
+    
+    console.log(`Returning album with title "${albumInfo.title}" and ${albumInfo.photos.length} photos`);
+    return albumInfo;
+  } catch (error) {
+    console.error(`Error in getAlbum(${id}):`, error);
+    return this.createFallbackAlbum(id);
+  }
+}
+
+/**
+ * Create a fallback album when the real one can't be fetched
+ * @param {string|number} id - Album ID
+ * @returns {Object} - Fallback album data
+ */
+static createFallbackAlbum(id) {
+  // Check if we have this album's title stored in session storage first
+  let title = `Demo Album ${id}`;
+  if (typeof window !== 'undefined' && window.sessionStorage) {
+    const storedTitle = sessionStorage.getItem('currentAlbumTitle');
+    if (storedTitle) {
+      title = storedTitle;
+      console.log(`Using title from session storage for fallback album: "${title}"`);
+    }
+  }
+  
+  return {
+    id: id,
+    title: title,
+    description: "This is a demonstration album with placeholder content.",
+    date: this.formatDate(new Date()),
+    coverImage: "/api/placeholder/400/300",
+    photos: this.generatePlaceholderPhotos(8), // Generate 8 placeholder photos
+  };
+}
+
+  /**
+   * Format a date string
+   * @param {string} dateString - ISO date string
+   * @returns {string} - Formatted date
+   */
+  static formatDate(dateString) {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  /**
+   * Get featured content
+   * @returns {Promise<Object>} - Featured content data
+   */
+  static async getFeatured() {
+    const data = await this.fetch(`${CONFIG.API.FEATURED}?populate=*`);
+    return this.processFeaturedData(data);
+  }
+
+  /**
+   * Process featured data from the API
+   * @param {Object} data - Raw API data
+   * @returns {Object} - Processed featured data
+   */
+  static processFeaturedData(data) {
+    console.log("Processing featured data:", data);
+
+    if (!data || !data.data) {
+      console.error("Missing data in featured response");
+      return null;
+    }
+
+    const featured = data.data;
+    console.log("Featured image:", featured.image);
+
+    // Check if we have the required fields
+    return {
+      id: featured.id || null,
+      title: featured.title || "Featured Content",
+      description: featured.description || "",
+      date: this.formatDate(featured.date),
+      image: featured.image ? this.getMediaUrl(featured.image) : "",
+      albumId: featured.album?.id || null,
+      albumTitle: featured.album?.title || "No Album",
+    };
+  }
+
+/**
+ * Get all albums with pagination support
+ * @returns {Promise<Array>} - Albums data
+ */
+static async getAlbums() {
+  try {
+    console.log('Fetching all albums');
+    
+    // Store all albums
+    let allAlbums = [];
+    let page = 1;
+    let hasMorePages = true;
+    
+    // Fetch albums with pagination
+    while (hasMorePages) {
+      console.log(`Fetching albums page ${page}`);
+      // Set pagination parameters - explicitly set pageSize to 100 to get more albums
+      const data = await this.fetch(`${CONFIG.API.ALBUMS}?populate=cover_image&pagination[page]=${page}&pagination[pageSize]=100`);
+      
+      console.log(`Raw albums data for page ${page}:`, data);
+      
+      // If we have data, process it
+      if (data && data.data && data.data.length > 0) {
+        const processedAlbums = this.processAlbumsData(data);
+        allAlbums = [...allAlbums, ...processedAlbums];
+        
+        // Check if we have more pages
+        if (data.meta && data.meta.pagination) {
+          const pagination = data.meta.pagination;
+          console.log('Pagination info:', pagination);
+          hasMorePages = pagination.page < pagination.pageCount;
+          page++;
+        } else {
+          // If no pagination info, assume no more pages
+          hasMorePages = false;
+        }
+      } else {
+        // No more data
+        hasMorePages = false;
+      }
+    }
+    
+    console.log(`Total albums fetched: ${allAlbums.length}`);
+    return allAlbums;
+  } catch (error) {
+    console.error('Error fetching albums:', error);
+    // Return demo albums as fallback
+    return this.generateDemoAlbums();
+  }
+}
+
+  /**
+   * Generate demo albums for testing when API is unavailable
+   * @returns {Array} - Array of album objects
+   */
+  static generateDemoAlbums() {
+    return [
+      {
+        id: 1,
+        title: "Motorcycle Racing",
+        description: "Action shots from the racetrack",
+        date: this.formatDate(new Date("2025-02-15")),
+        photoCount: 12,
+        coverImage: "/api/placeholder/600/400",
+      },
+      {
+        id: 2,
+        title: "Custom Builds",
+        description: "Beautiful custom motorcycle projects",
+        date: this.formatDate(new Date("2025-01-20")),
+        photoCount: 8,
+        coverImage: "/api/placeholder/600/400",
+      },
+      {
+        id: 3,
+        title: "Off-road Adventures",
+        description: "Dirt bikes and adventure riding",
+        date: this.formatDate(new Date("2024-12-10")),
+        photoCount: 15,
+        coverImage: "/api/placeholder/600/400",
+      },
+    ];
+  }
+
+  /**
+   * Process a single album's data from the API
+   * @param {Object} data - Raw API data for a single album
+   * @returns {Object} - Processed album data with photos
+   */
+  static processAlbumsData(data) {
+    console.log("Raw Albums Data:", JSON.stringify(data, null, 2));
+
+    if (!data || !data.data) {
+      console.error("Invalid albums data structure");
+      return [];
+    }
+
+    // Handle both array of albums and single album scenario
+    const albumsData = Array.isArray(data.data) ? data.data : [data.data];
+
+    console.log("Albums to Process:", albumsData.length);
+
+    const processedAlbums = albumsData
+      .map((album) => {
+        // Handle different possible data structures
+        const albumAttributes = album.attributes || album;
+
+        console.log(
+          "Current Album Raw Data:",
+          JSON.stringify(albumAttributes, null, 2)
+        );
+
+        // Extract photos if they're included in the response
+        let photos = [];
+
+        // Strapi v4 format with populated relation
+        if (
+          albumAttributes.photos &&
+          albumAttributes.photos.data &&
+          Array.isArray(albumAttributes.photos.data)
+        ) {
+          photos = albumAttributes.photos.data.map((photo) => {
+            const photoAttr = photo.attributes || photo;
+            return {
+              id: photo.id,
+              title: photoAttr.title || "Photo",
+              description: photoAttr.description || "",
+              date: this.formatDate(photoAttr.date || new Date()),
+              url:
+                this.extractPhotoUrl(photoAttr) || "/api/placeholder/800/600",
+            };
+          });
+          console.log(`Extracted ${photos.length} photos from album data`);
+        }
+
+        // Better photo count detection
+        let photosCount = photos.length;
+        if (photosCount === 0) {
+          // Structure 1: Populated relation in Strapi v4 format
+          if (
+            albumAttributes.photos &&
+            albumAttributes.photos.data &&
+            Array.isArray(albumAttributes.photos.data)
+          ) {
+            photosCount = albumAttributes.photos.data.length;
+          }
+          // Structure 2: Direct array format
+          else if (
+            albumAttributes.photos &&
+            Array.isArray(albumAttributes.photos)
+          ) {
+            photosCount = albumAttributes.photos.length;
+          }
+        }
+
+        // Determine cover image
+        let coverImage = "";
+        if (albumAttributes.cover_image) {
+          try {
+            coverImage = this.getMediaUrl(albumAttributes.cover_image);
+          } catch (error) {
+            console.error("Error extracting cover image:", error);
+          }
+        }
+
+        const processedAlbum = {
+          id: album.id || albumAttributes.id,
+          title: albumAttributes.title || "Untitled Album",
+          description: albumAttributes.description || "",
+          date: this.formatDate(albumAttributes.date),
+          photoCount: photosCount,
+          coverImage: coverImage,
+          photos: photos, // Include the extracted photos
+        };
+
+        console.log(
+          "Processed Album:",
+          JSON.stringify(processedAlbum, null, 2)
+        );
+
+        return processedAlbum;
+      })
+      .filter((album) => album !== null);
+
+    console.log("Total Processed Albums:", processedAlbums.length);
+
+    return processedAlbums;
+  }
+
+/**
+ * Process a single album's data from the API with improved photo count extraction
+ * @param {Object} data - Raw API data for a single album
+ * @returns {Object} - Processed album data with photos
+ */
+static processAlbumsData(data) {
+  console.log("Raw Albums Data:", JSON.stringify(data, null, 2));
+
+  if (!data || !data.data) {
+    console.error("Invalid albums data structure");
+    return [];
+  }
+
+  // Handle both array of albums and single album scenario
+  const albumsData = Array.isArray(data.data) ? data.data : [data.data];
+
+  console.log("Albums to Process:", albumsData.length);
+
+  const processedAlbums = albumsData
+    .map((album) => {
+      // Handle different possible data structures
+      const albumAttributes = album.attributes || album;
+
+      console.log(
+        "Current Album Raw Data:",
+        JSON.stringify(albumAttributes, null, 2)
+      );
+
+      // Extract photos if they're included in the response
+      let photos = [];
+
+      // Strapi v4 format with populated relation
+      if (
+        albumAttributes.photos &&
+        albumAttributes.photos.data &&
+        Array.isArray(albumAttributes.photos.data)
+      ) {
+        photos = albumAttributes.photos.data.map((photo) => {
+          const photoAttr = photo.attributes || photo;
+          return {
+            id: photo.id,
+            title: photoAttr.title || "Photo",
+            description: photoAttr.description || "",
+            date: this.formatDate(photoAttr.date || new Date()),
+            url:
+              this.extractPhotoUrl(photoAttr) || "/api/placeholder/800/600",
+          };
+        });
+        console.log(`Extracted ${photos.length} photos from album data`);
+      }
+
+      // Improved photo count detection - this is the key fix
+      let photosCount = 0;
+      
+      // Structure 1: Check if we already extracted photos
+      if (photos.length > 0) {
+        photosCount = photos.length;
+        console.log(`Using extracted photos count: ${photosCount}`);
+      }
+      // Structure 2: Populated relation in Strapi v4 format
+      else if (
+        albumAttributes.photos &&
+        albumAttributes.photos.data &&
+        Array.isArray(albumAttributes.photos.data)
+      ) {
+        photosCount = albumAttributes.photos.data.length;
+        console.log(`Using photos.data array length: ${photosCount}`);
+      }
+      // Structure 3: Direct array format
+      else if (
+        albumAttributes.photos &&
+        Array.isArray(albumAttributes.photos)
+      ) {
+        photosCount = albumAttributes.photos.length;
+        console.log(`Using direct photos array length: ${photosCount}`);
+      }
+      // Structure 4: Try to get count from album ID
+      else {
+        // Make a separate API call to get photo count
+        console.log(`No photos data found, will try to fetch photo count separately later`);
+        // The photo count will be updated later in a follow-up function
+      }
+
+      // Determine cover image
+      let coverImage = "";
+      if (albumAttributes.cover_image) {
+        try {
+          coverImage = this.getMediaUrl(albumAttributes.cover_image);
+        } catch (error) {
+          console.error("Error extracting cover image:", error);
+        }
+      }
+
+      const processedAlbum = {
+        id: album.id || albumAttributes.id,
+        title: albumAttributes.title || "Untitled Album",
+        description: albumAttributes.description || "",
+        date: this.formatDate(albumAttributes.date),
+        photoCount: photosCount,
+        coverImage: coverImage,
+        photos: photos, // Include the extracted photos
+      };
+
+      console.log(
+        "Processed Album:",
+        JSON.stringify(processedAlbum, null, 2)
+      );
+
+      return processedAlbum;
+    })
+    .filter((album) => album !== null);
+
+  console.log("Total Processed Albums:", processedAlbums.length);
+  
+  // Try to fetch photo counts for albums that don't have any
+  this.updatePhotoCountsForAlbums(processedAlbums);
+
+  return processedAlbums;
+}
+
+/**
+ * Update photo counts for albums that don't have them
+ * @param {Array} albums - Array of processed albums
+ */
+static async updatePhotoCountsForAlbums(albums) {
+  for (let album of albums) {
+    if (album.photoCount === 0) {
+      try {
+        console.log(`Fetching photo count for album ${album.id}`);
+        const photosData = await this.fetch(`${CONFIG.API.PHOTOS}?filters[album][id][$eq]=${album.id}&fields=id`);
+        
+        if (photosData && photosData.data && Array.isArray(photosData.data)) {
+          album.photoCount = photosData.data.length;
+          console.log(`Updated photo count for album ${album.id}: ${album.photoCount}`);
+          
+          // Update the DOM if it exists
+          const countElement = document.querySelector(`.album-card[data-album-id="${album.id}"] .album-count`);
+          if (countElement) {
+            countElement.textContent = `${album.photoCount} photos`;
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching photo count for album ${album.id}:`, error);
+      }
+    }
+  }
+}
+
+
+  /**
+   * Create a fallback album when the real one can't be fetched
+   * @param {string|number} id - Album ID
+   * @returns {Object} - Fallback album data
+   */
+  static createFallbackAlbum(id) {
+    return {
+      id: id,
+      title: "Demo Album " + id,
+      description: "This is a demonstration album with placeholder content.",
+      date: this.formatDate(new Date()),
+      coverImage: "/api/placeholder/400/300",
+      photos: this.generatePlaceholderPhotos(8), // Generate 8 placeholder photos
+    };
+  }
+
+  /**
+   * Generate placeholder photos for testing and fallbacks
+   * @param {number} count - Number of photos to generate
+   * @returns {Array} - Array of photo objects
+   */
+  static generatePlaceholderPhotos(count = 5) {
+    const photos = [];
+
+    for (let i = 0; i < count; i++) {
+      // Use different sized placeholders to make it look more realistic
+      const width = 800 + Math.floor(Math.random() * 400);
+      const height = 600 + Math.floor(Math.random() * 200);
+
+      photos.push({
+        id: "placeholder-" + i,
+        title: `Demo Photo ${i + 1}`,
+        description: "This is a placeholder photo for demonstration purposes.",
+        date: this.formatDate(new Date(Date.now() - i * 86400000)), // Different dates
+        url: `/api/placeholder/${width}/${height}`,
+      });
+    }
+
+    return photos;
+  }
+  /**
+   * Get about page content
+   * @returns {Promise<Object>} - About page data
+   */
+  static async getAbout() {
+    const data = await this.fetch(`${CONFIG.API.ABOUT}?populate=*`);
+    return this.processAboutData(data);
+  }
+
+  /**
+   * Process about page data from the API
+   * @param {Object} data - Raw API data
+   * @returns {Object} - Processed about page data
+   */
+  static processAboutData(data) {
+    console.log("Full About Data Response:", data);
+
+    if (!data || !data.data) {
+      console.error("Missing data in about response");
+      return {
+        title: "About",
+        content: "",
+        image: "",
+      };
+    }
+
+    const about = data.data;
+    console.log("About Data:", about);
+
+    // Parse rich text content
+    let content = "";
+    if (about.content && Array.isArray(about.content)) {
+      content = about.content
+        .map((block) => {
+          if (block.type === "paragraph") {
+            return block.children.map((child) => child.text || "").join("");
+          }
+          return "";
+        })
+        .filter((text) => text.trim() !== "")
+        .join("\n\n");
+    } else if (typeof about.content === "string") {
+      content = about.content;
+    }
+
+    return {
+      title: about.title || "About",
+      content: content,
+      image: about.image ? this.getMediaUrl(about.image) : "",
+    };
+  }
+
+  /**
+   * Generate a sharing link for an album
+   * @param {number|string} albumId - Album ID
+   * @returns {string} - Shareable URL
+   */
+  static getShareableLink(albumId) {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/shared/${albumId}`;
+  }
+}

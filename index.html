@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Google tag (gtag.js) -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-BZFXPPXML7"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+
+    gtag("config", "G-BZFXPPXML7");
+  </script>
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BF | Photography Gallery</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="apple-touch-icon" sizes="57x57" href="./favicons/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="./favicons/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="./favicons/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="./favicons/apple-icon-76x76.png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="./favicons/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="./favicons/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="./favicons/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="./favicons/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./favicons/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="./favicons/android-icon-192x192.png"
+    />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="./favicons/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicons/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="./favicons/ms-icon-144x144.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="Ben Foggon Photography - Motorcycle photography portfolio showcasing racing, custom builds, and off-road adventures"
+    />
+    <meta
+      name="keywords"
+      content="photography, motorcycle photography, racing, custom motorcycles, portfolio"
+    />
+    <meta property="og:title" content="Ben Foggon Photography" />
+    <meta
+      property="og:description"
+      content="A personal collection of motorcycle photography"
+    />
+    <meta property="og:image" content="https://cms.projectnetworks.co.uk/uploads/IMG_4732_L_b8df49c9a1.jpg" />
+    <meta property="og:url" content="https://benfoggon.com" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+
+  <body>
+    <div class="noise-overlay"></div>
+
+    <nav class="main-nav">
+      <div class="container nav-container">
+        <a href="#" class="logo">BF</a>
+        <div class="nav-links">
+          <a href="#featured" class="nav-link">Featured</a>
+          <a href="#albums" class="nav-link">Albums</a>
+          <a href="#about" class="nav-link">About</a>
+        </div>
+        <div class="nav-actions">
+          <button class="btn btn-text login-btn">Admin</button>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">Ben Foggon Photography</h1>
+          <p class="hero-subtitle">
+            A camera, a bike, and too many hard drives.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-large btn-primary">Browse Albums</button>
+          </div>
+        </div>
+      </div>
+      <div class="hero-backdrop"></div>
+    </header>
+
+    <section id="featured" class="featured-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Featured</span>
+          <h2 class="section-title">Latest Shots</h2>
+        </div>
+
+        <div id="featured-card-container">
+          <!-- Featured content will be loaded here via API -->
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="albums" class="albums-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Collection</span>
+          <h2 class="section-title">Photo Albums</h2>
+        </div>
+
+        <div id="album-grid" class="album-grid">
+          <!-- Albums will be loaded here via API -->
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about-section">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-content" id="about-content">
+            <!-- About content will be loaded here via API -->
+            <span class="section-label">About</span>
+            <h2 class="section-title">The Photographer</h2>
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="about-image">
+            <img
+              id="about-image"
+              src="/api/placeholder/600/700"
+              alt="Photographer with motorcycle"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Photo Viewer Modal -->
+    <div class="photo-viewer" id="photo-viewer">
+      <div class="photo-container">
+        <img src="/api/placeholder/1200/800" alt="Enlarged photo" />
+        <div class="photo-nav">
+          <button class="nav-btn prev-photo" aria-label="Previous photo">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button class="nav-btn next-photo" aria-label="Next photo">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="close-viewer" aria-label="Close photo viewer">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="icon"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="photo-info">
+        <h3 class="photo-title">Mountain Pass Shot</h3>
+        <div class="photo-meta">
+          <span class="photo-date">April 15, 2025</span>
+          <span class="photo-album">Track Day Album</span>
+        </div>
+      </div>
+    </div>
+
+    <footer class="main-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-logo">BF</div>
+
+          <div class="footer-copyright">Site created by Ben Foggon</div>
+          <div class="footer-links">
+            <!--   <a href="#" class="footer-link">Contact</a> -->
+            <a
+              href="https://www.instagram.com/ben.onabike/"
+              class="footer-link social-link"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="social-icon"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path
+                  d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
+                ></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+              Instagram
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Templates for JavaScript content insertion -->
+    <template id="featured-template">
+      <div class="featured-card">
+        <div class="featured-image">
+          <img src="" alt="" />
+        </div>
+        <div class="featured-content">
+          <div class="meta-tag">New</div>
+          <h3 class="featured-title"></h3>
+          <p class="featured-description"></p>
+          <div class="featured-footer">
+            <span class="date"></span>
+            <button class="btn btn-outline view-album-btn" data-album-id="">
+              View Album
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="album-card-template">
+      <article class="album-card">
+        <div class="album-image">
+          <img src="" alt="" />
+          <div class="album-overlay">
+            <span class="album-count"></span>
+          </div>
+        </div>
+        <div class="album-content">
+          <h3 class="album-title"></h3>
+          <p class="album-description"></p>
+          <div class="album-footer">
+            <span class="date"></span>
+            <div class="album-actions">
+              <button
+                class="btn-icon share"
+                aria-label="Share album"
+                data-album-id=""
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon"
+                >
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                  <polyline points="16 6 12 2 8 6"></polyline>
+                  <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="/config.js"></script>
+    <script src="/api.js"></script>
+    <script src="/script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,113 @@
+{
+  "featured": [
+    {
+      "id": 1,
+      "title": "Track Day Excellence",
+      "description": "Capturing the intensity of motorcycle racing at its finest",
+      "image": "https://images.unsplash.com/photo-1558980394-4c7c9923c096?w=800",
+      "category": "Racing",
+      "tags": ["racing", "track", "speed"],
+      "date": "2024-11-15"
+    },
+    {
+      "id": 2,
+      "title": "Custom Build Beauty",
+      "description": "Artistry meets engineering in this stunning custom motorcycle",
+      "image": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800",
+      "category": "Custom",
+      "tags": ["custom", "build", "design"],
+      "date": "2024-10-22"
+    },
+    {
+      "id": 3,
+      "title": "Open Road Freedom",
+      "description": "The spirit of adventure captured on the open highway",
+      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+      "category": "Adventure",
+      "tags": ["adventure", "road", "travel"],
+      "date": "2024-09-05"
+    },
+    {
+      "id": 4,
+      "title": "Precision Engineering",
+      "description": "Close-up details that showcase mechanical perfection",
+      "image": "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800",
+      "category": "Detail",
+      "tags": ["detail", "engineering", "macro"],
+      "date": "2024-08-18"
+    },
+    {
+      "id": 5,
+      "title": "Speed in Motion",
+      "description": "Dynamic action shots from the racetrack",
+      "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800",
+      "category": "Racing",
+      "tags": ["racing", "motion", "action"],
+      "date": "2024-07-12"
+    },
+    {
+      "id": 6,
+      "title": "Vintage Classic",
+      "description": "Timeless beauty of classic motorcycle design",
+      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+      "category": "Classic",
+      "tags": ["vintage", "classic", "retro"],
+      "date": "2024-06-30"
+    }
+  ],
+  "albums": [
+    {
+      "id": 1,
+      "title": "Racing Season 2024",
+      "description": "A complete collection from the 2024 racing season, featuring intense track action, pit scenes, and victory celebrations.",
+      "cover": "https://images.unsplash.com/photo-1558980394-4c7c9923c096?w=800",
+      "photoCount": 45,
+      "date": "2024",
+      "slug": "racing-season-2024",
+      "photos": []
+    },
+    {
+      "id": 2,
+      "title": "Custom Builds Showcase",
+      "description": "Stunning custom motorcycles from talented builders. Each bike tells a unique story of creativity and craftsmanship.",
+      "cover": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800",
+      "photoCount": 32,
+      "date": "2024",
+      "slug": "custom-builds-showcase",
+      "photos": []
+    },
+    {
+      "id": 3,
+      "title": "Off-Road Adventures",
+      "description": "Dirt bikes, trails, and adventure motorcycles conquering challenging terrain and exploring the great outdoors.",
+      "cover": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+      "photoCount": 28,
+      "date": "2023",
+      "slug": "off-road-adventures",
+      "photos": []
+    },
+    {
+      "id": 4,
+      "title": "Classic Motorcycles",
+      "description": "Timeless vintage motorcycles, restored to perfection. A tribute to the golden age of motorcycling.",
+      "cover": "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800",
+      "photoCount": 38,
+      "date": "2023",
+      "slug": "classic-motorcycles",
+      "photos": []
+    }
+  ],
+  "settings": {
+    "siteTitle": "BF Photography",
+    "siteSubtitle": "Capturing the Spirit of the Ride",
+    "contactEmail": "contact@benfoggon.com",
+    "social": {
+      "instagram": "https://instagram.com/yourhandle",
+      "facebook": "https://facebook.com/yourpage",
+      "twitter": "https://twitter.com/yourhandle"
+    },
+    "analytics": {
+      "googleAnalyticsId": "G-BZFXPPXML7"
+    }
+  }
+}

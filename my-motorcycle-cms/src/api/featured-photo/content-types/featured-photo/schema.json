@@ -1,0 +1,38 @@
+{
+  "kind": "singleType",
+  "collectionName": "featured_photos",
+  "info": {
+    "singularName": "featured-photo",
+    "pluralName": "featured-photos",
+    "displayName": "Featured Photo"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "date": {
+      "type": "date"
+    },
+    "image": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "album": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::album.album"
+    }
+  }
+}
