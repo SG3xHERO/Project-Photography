@@ -88,29 +88,4 @@ export default buildConfig({
     url: process.env.MONGODB_URI || 'mongodb://mongodb:27017/photography-cms',
   }),
   sharp,
-  onInit: async (payload) => {
-    // Create admin user if it doesn't exist
-    try {
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com'
-      const existingUsers = await payload.find({
-        collection: 'users',
-        where: { email: { equals: adminEmail } },
-        limit: 1,
-      })
-
-      if (existingUsers.docs.length === 0) {
-        await payload.create({
-          collection: 'users',
-          data: {
-            email: adminEmail,
-            password: process.env.ADMIN_PASSWORD || 'changeme',
-            name: 'Admin User',
-          },
-        })
-        payload.logger.info(`Admin user created: ${adminEmail}`)
-      }
-    } catch (error) {
-      payload.logger.error('Error creating admin user:', error)
-    }
-  },
 })
