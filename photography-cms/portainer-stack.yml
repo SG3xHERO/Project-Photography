@@ -24,6 +24,9 @@ services:
       - "com.photography.service=database"
 
   cms:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: photography-cms:latest
     container_name: photography-cms
     restart: unless-stopped
