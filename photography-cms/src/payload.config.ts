@@ -139,6 +139,15 @@ export default buildConfig({
             },
           },
         },
+        {
+          name: 'photos',
+          type: 'relationship',
+          relationTo: 'photos',
+          hasMany: true,
+          admin: {
+            description: 'Photos in this album - you can add photos here or assign them when creating photos',
+          },
+        },
       ],
     },
     // Photos collection
