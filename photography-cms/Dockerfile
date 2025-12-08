@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install ALL dependencies (including dev dependencies for build)
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy TypeScript config and source files
 COPY tsconfig.json ./
@@ -18,7 +18,7 @@ COPY src ./src
 ENV PAYLOAD_SECRET=build-time-secret-key-change-in-production
 ENV NODE_ENV=production
 
-# Build the application (TypeScript compile + Payload build)
+# Build the application (just TypeScript compilation)
 RUN npm run build
 
 # Production stage
@@ -30,7 +30,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm install --omit=dev
+RUN npm install --omit=dev --legacy-peer-deps
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
