@@ -1,49 +1,56 @@
-# Build stage
-FROM node:18-alpine AS builder
-
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Copy package files
+# Install dependencies
 COPY package*.json ./
+RUN npm install
 
-# Install ALL dependencies (including dev dependencies for build)
-RUN npm install --legacy-peer-deps
+# Stage 2: Builder
+FROM node:18-alpine AS builder
+WORKDIR /app
 
-# Copy TypeScript config and source files
-COPY tsconfig.json ./
-COPY nodemon.json ./
-COPY src ./src
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Set dummy environment variable for build (Payload may need this)
-ENV PAYLOAD_SECRET=build-time-secret-key-change-in-production
+# Set build-time environment variables
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV PAYLOAD_SECRET=build-time-secret-change-in-production
 
-# Build the application (just TypeScript compilation)
+# Build Next.js application
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine
-
+# Stage 3: Production
+FROM node:18-alpine AS runner
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 
-# Install only production dependencies
-RUN npm install --omit=dev --legacy-peer-deps
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Copy built files from builder stage
-COPY --from=builder /app/dist ./dist
+# Copy standalone build
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create media directory
-RUN mkdir -p ./media
+# Create media directory for uploads
+RUN mkdir -p ./media && chown -R nextjs:nodejs ./media
 
-# Expose port
+# Switch to non-root user
+USER nextjs
+
 EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/admin', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:3000/api', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the application
-CMD ["npm", "run", "serve"]
+# Start Next.js server
+CMD ["node", "server.js"]
