@@ -1,27 +1,21 @@
 # Dockerfile for Payload CMS v3 with Next.js
-# Based on official Payload documentation
+# Using Debian-based image to avoid Alpine native module issues
 
-FROM node:18-alpine AS base
+FROM node:18-slim AS base
 
 # Stage 1: Dependencies
 FROM base AS deps
-
-# CRITICAL: Install libc6-compat - required for Node.js native modules on Alpine
-RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+# Install dependencies with verbose output
+RUN npm install --legacy-peer-deps --loglevel verbose
 
 # Stage 2: Builder
 FROM base AS builder
-
-# Install libc6-compat for build stage too
-RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
@@ -37,14 +31,11 @@ ENV NODE_ENV=production
 ENV PAYLOAD_SECRET=build-time-secret-replace-at-runtime
 ENV MONGODB_URI=mongodb://localhost:27017/placeholder
 
-# Build the application
-RUN npm run build
+# Build the application with verbose output
+RUN echo "Starting build..." && npm run build --verbose 2>&1
 
 # Stage 3: Production Runner
 FROM base AS runner
-
-# Install libc6-compat for runtime
-RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
@@ -54,8 +45,8 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 # Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 nextjs
 
 # Copy public assets
 COPY --from=builder /app/public ./public
