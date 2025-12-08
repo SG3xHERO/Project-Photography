@@ -558,9 +558,65 @@
     $('.album-card').on('click', function() {
       const albumId = $(this).data('album-id');
       const albumSlug = $(this).data('album-slug');
-      // You can implement album view functionality here
-      console.log('Opening album:', albumId, albumSlug);
+      openAlbumView(albumId);
     });
+  }
+
+  // ==========================================
+  // Open Album View
+  // ==========================================
+  async function openAlbumView(albumId) {
+    try {
+      // Fetch album with photos populated
+      const response = await fetch(`${API_BASE}/albums/${albumId}?depth=2`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to load album');
+      }
+      
+      const album = await response.json();
+      
+      // Get photos from the album's photos relationship
+      let albumPhotos = [];
+      if (album.photos && album.photos.length > 0) {
+        albumPhotos = album.photos;
+      }
+      
+      // If no photos in the relationship, fetch all photos with this album ID
+      if (albumPhotos.length === 0) {
+        const photosResponse = await fetch(`${API_BASE}/photos?where[album][equals]=${albumId}&depth=1`);
+        if (photosResponse.ok) {
+          const photosData = await photosResponse.json();
+          albumPhotos = photosData.docs || [];
+        }
+      }
+      
+      // Update currentPhotos for lightbox
+      currentPhotos = albumPhotos;
+      
+      // Display photos in featured grid
+      const featuredGrid = $('#featured-grid');
+      featuredGrid.empty();
+      
+      if (albumPhotos.length > 0) {
+        displayFeaturedPhotos(albumPhotos);
+        
+        // Scroll to photos section
+        $('html, body').animate({
+          scrollTop: $('#featured').offset().top - 80
+        }, 800);
+        
+        // Update section title
+        $('.featured-section .section-title').text(album.title || 'Album Photos');
+        $('.featured-section .section-description').text(album.description || `${albumPhotos.length} photos in this album`);
+      } else {
+        featuredGrid.html('<p style="text-align: center; color: #888;">No photos in this album yet.</p>');
+      }
+      
+    } catch (error) {
+      console.error('Error loading album:', error);
+      alert('Failed to load album photos. Please try again.');
+    }
   }
 
   // ==========================================
