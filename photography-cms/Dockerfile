@@ -1,90 +1,74 @@
+# Dockerfile for Payload CMS v3 with Next.js
+# Based on official Payload documentation
+
+FROM node:18-alpine AS base
+
 # Stage 1: Dependencies
-FROM node:18-alpine AS deps
+FROM base AS deps
+
+# CRITICAL: Install libc6-compat - required for Node.js native modules on Alpine
+RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
+# Copy package files
+COPY package.json package-lock.json* ./
+
 # Install dependencies
-COPY package*.json ./
-RUN npm install --legacy-peer-deps --include=dev
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Stage 2: Builder
-FROM node:18-alpine AS builder
+FROM base AS builder
+
+# Install libc6-compat for build stage too
+RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy all source files needed for build
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY next.config.mjs ./
-COPY app ./app
-COPY src ./src
-COPY public ./public
+# Copy all source files
+COPY . .
 
-# Set build-time environment variables
+# Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-ENV PAYLOAD_SECRET=build-time-secret-change-in-production
-ENV SKIP_ENV_VALIDATION=1
-ENV DATABASE_URI=mongodb://localhost:27017/build-placeholder
+ENV PAYLOAD_SECRET=build-time-secret-replace-at-runtime
+ENV MONGODB_URI=mongodb://localhost:27017/placeholder
 
-# Debug: List files before build
-RUN echo "========== Files before build ==========" && \
-    ls -la && \
-    echo "Working directory: $(pwd)" && \
-    echo "Checking next.config.mjs:" && cat next.config.mjs && \
-    echo "Checking package.json scripts:" && cat package.json | grep -A 5 '"scripts"'
+# Build the application
+RUN npm run build
 
-# Build Next.js application - show full output
-RUN echo "========== Node Info ==========" && \
-    node --version && \
-    npm --version && \
-    echo "========== Building Next.js ==========" && \
-    ./node_modules/.bin/next build
+# Stage 3: Production Runner
+FROM base AS runner
 
-# Debug: Check what was created
-RUN echo "========== Files after build ==========" && \
-    ls -la && \
-    if [ -d .next ]; then \
-        echo "SUCCESS: .next exists" && ls -la .next/; \
-    else \
-        echo "ERROR: .next not found!"; \
-    fi
+# Install libc6-compat for runtime
+RUN apk add --no-cache libc6-compat
 
-# Stage 3: Production
-FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-# Create non-root user
+# Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files for production
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./next.config.mjs
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/src ./src
-COPY --from=builder --chown=nextjs:nodejs /app/app ./app
+# Copy public assets
+COPY --from=builder /app/public ./public
 
-# CRITICAL: Copy the .next build output - this MUST exist from builder stage
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+# Create .next directory with correct permissions
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
 
-# Debug: Verify .next directory was copied to runner
-RUN ls -la && \
-    echo "========== Checking .next in RUNNER ==========" && \
-    ls -la .next/ && \
-    echo "========== Checking BUILD_ID in RUNNER ==========" && \
-    cat .next/BUILD_ID && \
-    echo "========== Checking .next/server in RUNNER ==========" && \
-    ls -la .next/server/
+# Copy standalone build output
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create media directory
+# Create media directory for uploads
 RUN mkdir -p ./media && chown nextjs:nodejs ./media
 
 # Switch to non-root user
@@ -93,8 +77,8 @@ USER nextjs
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 
-# Start Next.js production server
-CMD ["node_modules/.bin/next", "start"]
+# Start the standalone Next.js server
+CMD ["node", "server.js"]

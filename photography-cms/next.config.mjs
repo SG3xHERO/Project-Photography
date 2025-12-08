@@ -1,21 +1,13 @@
-// Temporarily disabled withPayload to debug build issues
-// import { withPayload } from '@payloadcms/next/withPayload'
+import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Required for Docker deployment
+  // Required for Docker deployment - creates standalone build
   output: 'standalone',
   
   experimental: {
     reactCompiler: false,
   },
-  
-  // Webpack config to handle Payload
-  webpack: (config) => {
-    config.externals = [...(config.externals || []), 'sharp']
-    return config
-  },
 }
 
-export default nextConfig
-// export default withPayload(nextConfig)
+export default withPayload(nextConfig)
