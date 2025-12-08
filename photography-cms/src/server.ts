@@ -5,44 +5,38 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.CMS_PORT || 3000
 
-// Redirect root to Admin panel
 app.get('/', (_, res) => {
   res.redirect('/admin')
 })
 
-// Health check endpoint
-app.get('/api/health', (_, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
-})
-
 const start = async () => {
-  // Initialize Payload
   await payload.init({
-    secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
+    secret: process.env.PAYLOAD_SECRET || 'your-secret-key',
     express: app,
     onInit: async (payload) => {
       payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`)
       
-      // Create default admin user if none exists
+      // Create admin user if it doesn't exist
       try {
-        const users = await payload.find({
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com'
+        const existingUsers = await payload.find({
           collection: 'users',
+          where: { email: { equals: adminEmail } },
           limit: 1,
         })
 
-        if (users.docs.length === 0) {
+        if (existingUsers.docs.length === 0) {
           await payload.create({
             collection: 'users',
             data: {
-              email: process.env.ADMIN_EMAIL || 'admin@example.com',
-              password: process.env.ADMIN_PASSWORD || 'changeme123',
+              email: adminEmail,
+              password: process.env.ADMIN_PASSWORD || 'changeme',
               name: 'Admin User',
-              role: 'admin',
             },
           })
-          payload.logger.info('Default admin user created')
+          payload.logger.info(`Admin user created: ${adminEmail}`)
         }
       } catch (error) {
         payload.logger.error('Error creating admin user:', error)
@@ -50,10 +44,8 @@ const start = async () => {
     },
   })
 
-  app.listen(PORT, async () => {
+  app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`)
-    console.log(`Admin panel: http://localhost:${PORT}/admin`)
-    console.log(`API: http://localhost:${PORT}/api`)
   })
 }
 

@@ -1,46 +1,78 @@
 import path from 'path'
-import { buildConfig } from 'payload/config'
+import { buildConfig } from 'payload'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { slateEditor } from '@payloadcms/richtext-slate'
-
-// Collections
-import { Users } from './collections/Users'
-import { Photos } from './collections/Photos'
-import { Albums } from './collections/Albums'
-import { Media } from './collections/Media'
-
-// Globals
-import { SiteSettings } from './globals/SiteSettings'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
-  admin: {
-    user: Users.slug,
-    meta: {
-      titleSuffix: '- Photography CMS',
-      favicon: '/favicon.ico',
+  collections: [
+    {
+      slug: 'users',
+      auth: true,
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+          required: true,
+        },
+      ],
     },
-  },
-  collections: [Users, Photos, Albums, Media],
-  globals: [SiteSettings],
-  editor: slateEditor({}),
+    {
+      slug: 'media',
+      upload: {
+        staticDir: path.resolve(__dirname, '../media'),
+        mimeTypes: ['image/*'],
+      },
+      fields: [
+        {
+          name: 'alt',
+          type: 'text',
+        },
+      ],
+    },
+    {
+      slug: 'photos',
+      fields: [
+        {
+          name: 'title',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+        },
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+        },
+        {
+          name: 'category',
+          type: 'select',
+          options: [
+            { label: 'Racing', value: 'racing' },
+            { label: 'Custom', value: 'custom' },
+            { label: 'Adventure', value: 'adventure' },
+            { label: 'Detail', value: 'detail' },
+            { label: 'Vintage', value: 'vintage' },
+            { label: 'Street', value: 'street' },
+          ],
+        },
+        {
+          name: 'featured',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+      ],
+    },
+  ],
+  editor: lexicalEditor(),
   typescript: {
     outputFile: path.resolve(__dirname, '../payload-types.ts'),
   },
   db: mongooseAdapter({
-    url: process.env.DATABASE_URI || process.env.MONGODB_URI || '',
+    url: process.env.MONGODB_URI || 'mongodb://localhost:27017/photography-cms',
   }),
-  cors: [
-    process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
-    'http://localhost:8080',
-    'http://localhost:5173',
-  ].filter(Boolean),
-  csrf: [
-    process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
-    'http://localhost:8080',
-    'http://localhost:5173',
-  ].filter(Boolean),
-  graphQL: {
-    schemaOutputFile: path.resolve(__dirname, '../schema.graphql'),
-  },
 })
