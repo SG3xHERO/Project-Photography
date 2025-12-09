@@ -459,8 +459,9 @@
       const photoCard = `
         <article class="photo-card" data-index="${index}" data-photo-id="${photoId}">
           <div class="photo-wrapper">
-            <img src="${imageUrl}" alt="${title}" loading="lazy">
+            <img src="${imageUrl}" alt="${title}" loading="lazy" oncontextmenu="return false;" draggable="false">
             <div class="photo-watermark">Ben Foggon</div>
+            <div class="photo-protection-overlay"></div>
           </div>
           <div class="photo-card-overlay">
             <h3 class="photo-card-title">${title}</h3>
@@ -726,18 +727,46 @@
     // Show album view
     $('.featured-section').show();
     
-    // Add back button
+    // Update navigation to make links work
+    $('.nav-link').off('click').on('click', function(e) {
+      e.preventDefault();
+      const target = $(this).attr('href');
+      
+      if (target === '#home' || target.includes('benfoggon.com') || target.includes('projectnetworks')) {
+        // External links or home - reload page
+        if (target.startsWith('http')) {
+          window.open(target, '_blank');
+        } else {
+          window.location.hash = '';
+          location.reload();
+        }
+      } else {
+        // Navigate to section
+        window.location.hash = '';
+        location.reload();
+        setTimeout(() => {
+          $('html, body').animate({
+            scrollTop: $(target).offset().top - 80
+          }, 800);
+        }, 100);
+      }
+    });
+    
+    // Add back button in navigation area
     const sectionHeader = $('.featured-section .section-header');
-    if (!sectionHeader.find('.album-back-btn').length) {
-      sectionHeader.prepend(`
-        <button class="album-back-btn" onclick="window.location.hash = ''; location.reload();">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-          Back to Albums
-        </button>
-      `);
-    }
+    
+    // Remove old back button if exists
+    sectionHeader.find('.album-back-btn').remove();
+    
+    // Add new back button before section label
+    sectionHeader.prepend(`
+      <button class="album-back-btn" onclick="window.location.hash = ''; location.reload();">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back to Albums
+      </button>
+    `);
     
     // Display photos in featured grid
     const featuredGrid = $('#featured-grid');
@@ -773,28 +802,63 @@
   // Lightbox Functionality
   // ==========================================
   function openPhotoById(photoId) {
-    // If we don't have photos loaded yet, try to fetch the specific photo
-    if (!currentPhotos || currentPhotos.length === 0) {
-      // Try to load all photos first
-      loadFeaturedPhotos().then(() => {
-        const index = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
-        if (index !== -1) {
-          openLightbox(index);
-        } else {
-          console.error('Photo not found:', photoId);
-          window.location.hash = '';
-        }
-      });
-      return;
+    // Try to find in current photos first
+    if (currentPhotos && currentPhotos.length > 0) {
+      const index = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
+      if (index !== -1) {
+        openLightbox(index);
+        return;
+      }
     }
     
-    // Find photo index in currentPhotos
-    const index = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
-    if (index !== -1) {
-      openLightbox(index);
-    } else {
-      console.error('Photo not found:', photoId);
-      window.location.hash = '';
+    // If not found, try to fetch from API
+    fetchPhotoById(photoId);
+  }
+  
+  async function fetchPhotoById(photoId) {
+    try {
+      showShareNotification('Loading photo...');
+      const response = await fetch(`${API_BASE}/photos/${photoId}?depth=1`);
+      
+      if (response.ok) {
+        const photo = await response.json();
+        
+        // Check if photo belongs to an album
+        if (photo.album) {
+          const albumId = typeof photo.album === 'object' ? photo.album.id : photo.album;
+          const albumSlug = typeof photo.album === 'object' ? photo.album.slug : null;
+          
+          // Load the album to get context
+          window.location.hash = `album/${albumSlug || albumId}`;
+          
+          // Wait a bit then open the specific photo
+          setTimeout(() => {
+            const photoIndex = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
+            if (photoIndex !== -1) {
+              openLightbox(photoIndex);
+            }
+          }, 500);
+        } else {
+          // Standalone photo - load all featured photos and open this one
+          await loadFeaturedPhotos();
+          const index = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
+          if (index !== -1) {
+            openLightbox(index);
+          } else {
+            // Add this photo to currentPhotos and display
+            currentPhotos = [photo];
+            openLightbox(0);
+          }
+        }
+      } else {
+        throw new Error('Photo not found');
+      }
+    } catch (error) {
+      console.error('Error loading photo:', error);
+      showShareNotification('Photo not found');
+      setTimeout(() => {
+        window.location.hash = '';
+      }, 2000);
     }
   }
 
@@ -842,6 +906,14 @@
     $('#lightbox-image').attr('src', imageUrl).attr('alt', title);
     $('#lightbox-title').text(title);
     $('#lightbox-description').text(description);
+    
+    // Show album context if viewing from an album
+    if (currentAlbum) {
+      $('#lightbox-album-context').show();
+      $('#lightbox-album-name').text(currentAlbum.title || 'Album');
+    } else {
+      $('#lightbox-album-context').hide();
+    }
     
     // Update share button
     $('#lightbox-share-btn').attr('data-photo-id', photoId).attr('data-title', title);
@@ -1101,6 +1173,19 @@
     loadFeaturedPhotos();
     loadAlbums();
     setupLazyLoading();
+    
+    // Prevent right-click on images
+    $(document).on('contextmenu', 'img, .photo-wrapper, .lightbox-image-wrapper', function(e) {
+      e.preventDefault();
+      showShareNotification('Right-click disabled. Use the Download button to save with watermark.');
+      return false;
+    });
+    
+    // Prevent dragging images
+    $(document).on('dragstart', 'img', function(e) {
+      e.preventDefault();
+      return false;
+    });
     
     // Delay animation observer to allow content to load
     setTimeout(animateOnScroll, 1000);

@@ -427,6 +427,26 @@ section {
 .section-header {
   text-align: center;
   margin-bottom: var(--space-10);
+  position: relative;
+}
+
+/* When album view is active, adjust header layout */
+.section-header .album-back-btn {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+@media (max-width: 968px) {
+  .section-header .album-back-btn {
+    position: relative;
+    left: auto;
+    top: auto;
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--space-4);
+  }
 }
 
 .section-title {
@@ -1277,6 +1297,26 @@ section {
   font-family: var(--font-heading);
 }
 
+/* Invisible protection layer to prevent right-click save */
+.photo-protection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  background: transparent;
+  pointer-events: none;
+}
+
+.photo-wrapper img,
+.lightbox-image-wrapper img {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 /* ========================================
    Share Buttons
    ======================================== */
@@ -1367,24 +1407,32 @@ section {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-4) var(--space-6);
-  background: linear-gradient(135deg, rgba(219, 1, 249, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+  padding: var(--space-3) var(--space-5);
+  background: linear-gradient(135deg, rgba(219, 1, 249, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all var(--transition-base);
-  border: 2px solid var(--color-primary);
-  font-size: var(--font-size-base);
+  border: 2px solid rgba(219, 1, 249, 0.4);
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  margin-bottom: var(--space-6);
-  box-shadow: 0 4px 12px rgba(219, 1, 249, 0.3);
+  margin-bottom: var(--space-4);
+  box-shadow: 0 2px 8px rgba(219, 1, 249, 0.2);
 }
 
 .album-back-btn:hover {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #a855f7 100%);
+  background: linear-gradient(135deg, rgba(219, 1, 249, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%);
   border-color: var(--color-primary);
   transform: translateX(-4px);
-  box-shadow: 0 6px 20px rgba(219, 1, 249, 0.5);
+  box-shadow: 0 4px 16px rgba(219, 1, 249, 0.4);
+}
+
+.album-back-btn svg {
+  transition: transform var(--transition-base);
+}
+
+.album-back-btn:hover svg {
+  transform: translateX(-3px);
 }
 
 /* ========================================
@@ -1434,6 +1482,26 @@ section {
   gap: var(--space-4);
 }
 
+.lightbox-album-context {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(219, 1, 249, 0.15);
+  border: 1px solid rgba(219, 1, 249, 0.3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+
+.lightbox-album-context svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-primary);
+}
+
 /* ========================================
    Responsive Adjustments
    ======================================== */
@@ -1449,6 +1517,7 @@ section {
     font-size: 13px;
     margin-left: 0;
     margin-top: var(--space-2);
+    display: block;
   }
   
   .lightbox-action-btn {
@@ -1461,10 +1530,8 @@ section {
   }
   
   .album-back-btn {
-    padding: var(--space-3) var(--space-5);
-    font-size: 14px;
-    width: 100%;
-    justify-content: center;
+    padding: var(--space-3) var(--space-4);
+    font-size: 13px;
   }
   
   .share-notification {
@@ -1472,6 +1539,11 @@ section {
     bottom: var(--space-4);
     left: var(--space-4);
     font-size: 13px;
+  }
+  
+  .lightbox-album-context {
+    font-size: 11px;
+    padding: var(--space-1) var(--space-2);
   }
 }
 

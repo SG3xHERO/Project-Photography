@@ -376,12 +376,21 @@
     </button>
     <div class="lightbox-content">
       <div class="lightbox-image-wrapper">
-        <img src="" alt="" id="lightbox-image">
+        <img src="" alt="" id="lightbox-image" oncontextmenu="return false;" draggable="false">
         <div class="photo-watermark">Ben Foggon</div>
+        <div class="photo-protection-overlay"></div>
       </div>
       <div class="lightbox-info">
         <div class="lightbox-info-header">
           <div>
+            <div id="lightbox-album-context" class="lightbox-album-context" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <span id="lightbox-album-name"></span>
+            </div>
             <h3 id="lightbox-title"></h3>
             <p id="lightbox-description"></p>
           </div>
