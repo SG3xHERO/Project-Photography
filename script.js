@@ -88,6 +88,57 @@
   });
 
   // ==========================================
+  // Photography Dropdown Menu
+  // ==========================================
+  let dropdownTimeout;
+  
+  $('#photography-dropdown-trigger').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $('#photography-dropdown').toggleClass('active');
+  });
+
+  // Close dropdown when clicking outside
+  $(document).on('click', function(e) {
+    if (!$(e.target).closest('.logo, .photography-dropdown').length) {
+      $('#photography-dropdown').removeClass('active');
+    }
+  });
+
+  // Hover behavior for desktop
+  $('.logo').on('mouseenter', function() {
+    if ($(window).width() >= 968) {
+      clearTimeout(dropdownTimeout);
+      $('#photography-dropdown').addClass('active');
+    }
+  });
+
+  $('.logo, .photography-dropdown').on('mouseleave', function() {
+    if ($(window).width() >= 968) {
+      dropdownTimeout = setTimeout(function() {
+        $('#photography-dropdown').removeClass('active');
+      }, 200);
+    }
+  });
+
+  $('.photography-dropdown').on('mouseenter', function() {
+    if ($(window).width() >= 968) {
+      clearTimeout(dropdownTimeout);
+    }
+  });
+
+  // Logo BF click to go home
+  $('#logo-home .logo-text').on('click', function(e) {
+    e.preventDefault();
+    window.location.hash = '';
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+      location.reload();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  // ==========================================
   // Smooth Scrolling for Anchor Links
   // ==========================================
   $('a[href*="#"]').not('[href="#"]').not('[href="#0"]').on('click', function(event) {
@@ -752,21 +803,27 @@
       }
     });
     
-    // Add back button in navigation area
-    const sectionHeader = $('.featured-section .section-header');
+    // Add back button container and button
+    const featuredSection = $('.featured-section');
+    const container = featuredSection.find('.container').first();
     
     // Remove old back button if exists
-    sectionHeader.find('.album-back-btn').remove();
+    featuredSection.find('.album-navigation').remove();
     
-    // Add new back button before section label
-    sectionHeader.prepend(`
-      <button class="album-back-btn" onclick="window.location.hash = ''; location.reload();">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-        Back to Albums
-      </button>
+    // Add new back button in a proper container at the top of the section
+    container.prepend(`
+      <div class="album-navigation">
+        <button class="album-back-btn" onclick="window.location.hash = ''; location.reload();">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Back to Albums</span>
+        </button>
+      </div>
     `);
+    
+    const sectionHeader = $('.featured-section .section-header');
     
     // Display photos in featured grid
     const featuredGrid = $('#featured-grid');
@@ -1177,7 +1234,7 @@
     // Prevent right-click on images
     $(document).on('contextmenu', 'img, .photo-wrapper, .lightbox-image-wrapper', function(e) {
       e.preventDefault();
-      showShareNotification('Right-click disabled. Use the Download button to save with watermark.');
+      showShareNotification('Right-click disabled. Use the Download button.');
       return false;
     });
     

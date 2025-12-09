@@ -97,10 +97,49 @@
   <!-- Navigation -->
   <nav class="main-nav" role="navigation" aria-label="Main navigation">
     <div class="container nav-container">
-      <a href="#home" class="logo" aria-label="BF Photography Home">
+      <a href="#home" class="logo" aria-label="BF Photography Home" id="logo-home">
         <span class="logo-text">BF</span>
-        <span class="logo-badge">Photography</span>
+        <span class="logo-badge" id="photography-dropdown-trigger">
+          Photography
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropdown-arrow">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </span>
       </a>
+      
+      <!-- Dropdown Menu -->
+      <div class="photography-dropdown" id="photography-dropdown">
+        <a href="https://benfoggon.com" target="_blank" class="dropdown-item portfolio-item">
+          <div class="dropdown-item-content">
+            <div class="dropdown-icon portfolio-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <div class="dropdown-text">
+              <div class="dropdown-title">Portfolio</div>
+              <div class="dropdown-description">Professional work & projects</div>
+            </div>
+          </div>
+        </a>
+        <a href="https://projectnetworks.co.uk" target="_blank" class="dropdown-item network-item">
+          <div class="dropdown-item-content">
+            <div class="dropdown-icon network-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <div class="dropdown-text">
+              <div class="dropdown-title">Project Networks</div>
+              <div class="dropdown-description">Gaming community & servers</div>
+            </div>
+          </div>
+        </a>
+      </div>
+      
       <div class="nav-links">
         <a href="#home" class="nav-link active">Home</a>
         <a href="#featured" class="nav-link">Featured</a>
