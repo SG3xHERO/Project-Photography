@@ -190,15 +190,30 @@
       if (settings.about.paragraph2) {
         $('.about-text p').last().text(settings.about.paragraph2);
       }
-      if (settings.about.image?.sizes?.card?.url) {
-        $('.about-image img').attr('src', `${API_BASE.replace('/api', '')}${settings.about.image.sizes.card.url}`);
-      } else if (settings.about.image?.url) {
-        // Handle if image object has direct URL
-        let imageUrl = settings.about.image.url;
-        if (!imageUrl.startsWith('http')) {
-          imageUrl = `${API_BASE.replace('/api', '')}${imageUrl}`;
+      
+      // Enhanced image handling for about section
+      if (settings.about.image) {
+        let imageUrl = '';
+        
+        // Try different image format possibilities
+        if (settings.about.image.sizes?.card?.url) {
+          imageUrl = settings.about.image.sizes.card.url;
+        } else if (settings.about.image.sizes?.thumbnail?.url) {
+          imageUrl = settings.about.image.sizes.thumbnail.url;
+        } else if (settings.about.image.url) {
+          imageUrl = settings.about.image.url;
+        } else if (typeof settings.about.image === 'string') {
+          imageUrl = settings.about.image;
         }
-        $('.about-image img').attr('src', imageUrl);
+        
+        // Make URL absolute if it's relative
+        if (imageUrl) {
+          if (!imageUrl.startsWith('http')) {
+            imageUrl = `${API_BASE.replace('/api', '')}${imageUrl}`;
+          }
+          console.log('Setting about image to:', imageUrl);
+          $('.about-image img').attr('src', imageUrl);
+        }
       } else if (settings.about.imageFallbackUrl) {
         $('.about-image img').attr('src', settings.about.imageFallbackUrl);
       }
@@ -758,10 +773,28 @@
   // Lightbox Functionality
   // ==========================================
   function openPhotoById(photoId) {
+    // If we don't have photos loaded yet, try to fetch the specific photo
+    if (!currentPhotos || currentPhotos.length === 0) {
+      // Try to load all photos first
+      loadFeaturedPhotos().then(() => {
+        const index = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
+        if (index !== -1) {
+          openLightbox(index);
+        } else {
+          console.error('Photo not found:', photoId);
+          window.location.hash = '';
+        }
+      });
+      return;
+    }
+    
     // Find photo index in currentPhotos
     const index = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
     if (index !== -1) {
       openLightbox(index);
+    } else {
+      console.error('Photo not found:', photoId);
+      window.location.hash = '';
     }
   }
 
@@ -812,6 +845,9 @@
     
     // Update share button
     $('#lightbox-share-btn').attr('data-photo-id', photoId).attr('data-title', title);
+    
+    // Update download button
+    $('#lightbox-download-btn').attr('data-image-url', imageUrl).attr('data-title', title);
   }
 
   function nextPhoto() {
@@ -879,6 +915,86 @@
       // Fallback - copy to clipboard
       copyToClipboard(url);
       showShareNotification('Album link copied to clipboard!');
+    }
+  };
+  
+  // ==========================================
+  // Download Photo with Watermark
+  // ==========================================
+  window.downloadPhotoWithWatermark = async function(imageUrl, title) {
+    try {
+      showShareNotification('Preparing download with watermark...');
+      
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Load image
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = function() {
+        // Set canvas size to image size
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Draw image
+        ctx.drawImage(img, 0, 0);
+        
+        // Add watermark
+        const watermarkText = 'Ben Foggon';
+        const fontSize = Math.max(20, img.height / 40); // Responsive font size
+        const padding = fontSize * 0.6;
+        
+        ctx.font = `600 ${fontSize}px "Poppins", sans-serif`;
+        ctx.textBaseline = 'bottom';
+        
+        // Measure text
+        const textMetrics = ctx.measureText(watermarkText);
+        const textWidth = textMetrics.width;
+        const textHeight = fontSize;
+        
+        // Position at bottom-right
+        const x = img.width - textWidth - padding * 2;
+        const y = img.height - padding;
+        
+        // Draw background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(
+          x - padding,
+          y - textHeight - padding,
+          textWidth + padding * 2,
+          textHeight + padding * 2
+        );
+        
+        // Draw text
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillText(watermarkText, x, y);
+        
+        // Convert to blob and download
+        canvas.toBlob(function(blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_benfoggon.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          
+          showShareNotification('Photo downloaded with watermark!');
+        }, 'image/jpeg', 0.95);
+      };
+      
+      img.onerror = function() {
+        showShareNotification('Failed to download. Please try again.');
+      };
+      
+      img.src = imageUrl;
+      
+    } catch (error) {
+      console.error('Download error:', error);
+      showShareNotification('Failed to download. Please try again.');
     }
   };
   
