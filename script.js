@@ -10,6 +10,7 @@
   const API_BASE = 'https://cms.benfoggon.com/api'; // Payload CMS
   let currentLightboxIndex = 0;
   let currentPhotos = [];
+  let currentAlbum = null;
 
   // ==========================================
   // Page Loading & Preloader
@@ -18,7 +19,34 @@
     setTimeout(function() {
       $('#js-preloader').addClass('loaded');
     }, 500);
+    
+    // Handle URL routing on page load
+    handleRouting();
   });
+
+  // ==========================================
+  // URL Routing for Albums and Photos
+  // ==========================================
+  function handleRouting() {
+    const hash = window.location.hash;
+    
+    // Check for album route: #album/slug or #album/id
+    if (hash.startsWith('#album/')) {
+      const albumIdentifier = hash.replace('#album/', '');
+      openAlbumByIdentifier(albumIdentifier);
+      return;
+    }
+    
+    // Check for photo route: #photo/id
+    if (hash.startsWith('#photo/')) {
+      const photoId = hash.replace('#photo/', '');
+      openPhotoById(photoId);
+      return;
+    }
+  }
+
+  // Listen for hash changes
+  window.addEventListener('hashchange', handleRouting);
 
   // ==========================================
   // Navigation Scroll Effect
@@ -164,6 +192,13 @@
       }
       if (settings.about.image?.sizes?.card?.url) {
         $('.about-image img').attr('src', `${API_BASE.replace('/api', '')}${settings.about.image.sizes.card.url}`);
+      } else if (settings.about.image?.url) {
+        // Handle if image object has direct URL
+        let imageUrl = settings.about.image.url;
+        if (!imageUrl.startsWith('http')) {
+          imageUrl = `${API_BASE.replace('/api', '')}${imageUrl}`;
+        }
+        $('.about-image img').attr('src', imageUrl);
       } else if (settings.about.imageFallbackUrl) {
         $('.about-image img').attr('src', settings.about.imageFallbackUrl);
       }
@@ -404,13 +439,26 @@
       
       const title = photo.title || 'Untitled';
       const description = photo.description || '';
+      const photoId = photo.id || photo._id || index;
       
       const photoCard = `
-        <article class="photo-card" data-index="${index}">
-          <img src="${imageUrl}" alt="${title}" loading="lazy">
+        <article class="photo-card" data-index="${index}" data-photo-id="${photoId}">
+          <div class="photo-wrapper">
+            <img src="${imageUrl}" alt="${title}" loading="lazy">
+            <div class="photo-watermark">Ben Foggon</div>
+          </div>
           <div class="photo-card-overlay">
             <h3 class="photo-card-title">${title}</h3>
             <p class="photo-card-description">${description}</p>
+            <button class="photo-share-btn" data-photo-id="${photoId}" data-title="${title}" title="Share this photo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+            </button>
           </div>
         </article>
       `;
@@ -418,10 +466,22 @@
       featuredGrid.append(photoCard);
     });
 
-    // Attach click handlers
-    $('.photo-card').on('click', function() {
+    // Attach click handlers for photo cards
+    $('.photo-card').on('click', function(e) {
+      // Don't open lightbox if clicking share button
+      if ($(e.target).closest('.photo-share-btn').length) {
+        return;
+      }
       const index = $(this).data('index');
       openLightbox(index);
+    });
+    
+    // Attach share button handlers
+    $('.photo-share-btn').on('click', function(e) {
+      e.stopPropagation();
+      const photoId = $(this).data('photo-id');
+      const title = $(this).data('title');
+      window.sharePhoto(photoId, title);
     });
   }
 
@@ -525,11 +585,21 @@
       
       const title = album.title || 'Untitled Album';
       const description = album.description || '';
-      const photoCount = album.photoCount || 0;
+      const slug = album.slug || album.id || '';
       const date = album.publishedDate ? new Date(album.publishedDate).getFullYear() : '';
       
+      // Calculate photo count - check multiple possible properties
+      let photoCount = 0;
+      if (album.photos && Array.isArray(album.photos)) {
+        photoCount = album.photos.length;
+      } else if (album.photoCount) {
+        photoCount = album.photoCount;
+      } else if (album.photos) {
+        photoCount = album.photos;
+      }
+      
       const albumCard = `
-        <article class="album-card" data-album-id="${album.id}" data-album-slug="${album.slug || ''}">
+        <article class="album-card" data-album-id="${album.id}" data-album-slug="${slug}">
           <div class="album-image">
             <img src="${coverUrl}" alt="${title}" loading="lazy">
             <div class="album-badge">
@@ -538,7 +608,7 @@
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
               </svg>
-              ${photoCount} Photos
+              ${photoCount} Photo${photoCount !== 1 ? 's' : ''}
             </div>
           </div>
           <div class="album-content">
@@ -558,70 +628,143 @@
     $('.album-card').on('click', function() {
       const albumId = $(this).data('album-id');
       const albumSlug = $(this).data('album-slug');
-      openAlbumView(albumId);
+      // Navigate to album page with URL
+      window.location.hash = `album/${albumSlug || albumId}`;
     });
   }
 
   // ==========================================
   // Open Album View
   // ==========================================
-  async function openAlbumView(albumId) {
+  async function openAlbumByIdentifier(identifier) {
+    // Try to find album by slug first, then by ID
     try {
-      // Fetch album with photos populated
-      const response = await fetch(`${API_BASE}/albums/${albumId}?depth=2`);
+      let album = null;
+      let albumId = null;
       
-      if (!response.ok) {
-        throw new Error('Failed to load album');
-      }
-      
-      const album = await response.json();
-      
-      // Get photos from the album's photos relationship
-      let albumPhotos = [];
-      if (album.photos && album.photos.length > 0) {
-        albumPhotos = album.photos;
-      }
-      
-      // If no photos in the relationship, fetch all photos with this album ID
-      if (albumPhotos.length === 0) {
-        const photosResponse = await fetch(`${API_BASE}/photos?where[album][equals]=${albumId}&depth=1`);
-        if (photosResponse.ok) {
-          const photosData = await photosResponse.json();
-          albumPhotos = photosData.docs || [];
+      // Try finding by slug
+      const slugResponse = await fetch(`${API_BASE}/albums?where[slug][equals]=${identifier}&depth=2&limit=1`);
+      if (slugResponse.ok) {
+        const slugData = await slugResponse.json();
+        if (slugData.docs && slugData.docs.length > 0) {
+          album = slugData.docs[0];
+          albumId = album.id;
         }
       }
       
-      // Update currentPhotos for lightbox
-      currentPhotos = albumPhotos;
-      
-      // Display photos in featured grid
-      const featuredGrid = $('#featured-grid');
-      featuredGrid.empty();
-      
-      if (albumPhotos.length > 0) {
-        displayFeaturedPhotos(albumPhotos);
-        
-        // Scroll to photos section
-        $('html, body').animate({
-          scrollTop: $('#featured').offset().top - 80
-        }, 800);
-        
-        // Update section title
-        $('.featured-section .section-title').text(album.title || 'Album Photos');
-        $('.featured-section .section-description').text(album.description || `${albumPhotos.length} photos in this album`);
-      } else {
-        featuredGrid.html('<p style="text-align: center; color: #888;">No photos in this album yet.</p>');
+      // If not found by slug, try by ID
+      if (!album) {
+        albumId = identifier;
+        const idResponse = await fetch(`${API_BASE}/albums/${albumId}?depth=2`);
+        if (idResponse.ok) {
+          album = await idResponse.json();
+        }
       }
       
+      if (album) {
+        await displayAlbumPage(album, albumId);
+      } else {
+        console.error('Album not found');
+        // Reset to home
+        window.location.hash = '';
+      }
     } catch (error) {
       console.error('Error loading album:', error);
-      alert('Failed to load album photos. Please try again.');
+      window.location.hash = '';
+    }
+  }
+
+  async function openAlbumView(albumId) {
+    // Update URL
+    const albumCard = $(`.album-card[data-album-id="${albumId}"]`);
+    const albumSlug = albumCard.data('album-slug');
+    window.location.hash = `album/${albumSlug || albumId}`;
+  }
+  
+  async function displayAlbumPage(album, albumId) {
+    currentAlbum = album;
+    
+    // Get photos from the album's photos relationship
+    let albumPhotos = [];
+    if (album.photos && album.photos.length > 0) {
+      albumPhotos = album.photos;
+    }
+    
+    // If no photos in the relationship, fetch all photos with this album ID
+    if (albumPhotos.length === 0) {
+      const photosResponse = await fetch(`${API_BASE}/photos?where[album][equals]=${albumId}&depth=1`);
+      if (photosResponse.ok) {
+        const photosData = await photosResponse.json();
+        albumPhotos = photosData.docs || [];
+      }
+    }
+    
+    // Update currentPhotos for lightbox
+    currentPhotos = albumPhotos;
+    
+    // Hide other sections and show only featured section
+    $('.hero').hide();
+    $('.albums-section').hide();
+    $('.about-section').hide();
+    $('.sister-sites-section').hide();
+    
+    // Show album view
+    $('.featured-section').show();
+    
+    // Add back button
+    const sectionHeader = $('.featured-section .section-header');
+    if (!sectionHeader.find('.album-back-btn').length) {
+      sectionHeader.prepend(`
+        <button class="album-back-btn" onclick="window.location.hash = ''; location.reload();">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          Back to Albums
+        </button>
+      `);
+    }
+    
+    // Display photos in featured grid
+    const featuredGrid = $('#featured-grid');
+    featuredGrid.empty();
+    
+    if (albumPhotos.length > 0) {
+      displayFeaturedPhotos(albumPhotos);
+      
+      // Scroll to top
+      $('html, body').animate({ scrollTop: 0 }, 400);
+      
+      // Update section title with share button
+      sectionHeader.find('.section-label').text('Album');
+      sectionHeader.find('.section-title').html(`
+        ${album.title || 'Album Photos'}
+        <button class="album-share-btn" onclick="shareAlbum('${album.slug || albumId}', '${album.title}')" title="Share this album">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+        </button>
+      `);
+      sectionHeader.find('.section-description').text(album.description || `${albumPhotos.length} photo${albumPhotos.length !== 1 ? 's' : ''} in this album`);
+    } else {
+      featuredGrid.html('<p style="text-align: center; color: #888; padding: 60px 20px;">No photos in this album yet.</p>');
     }
   }
 
   // ==========================================
   // Lightbox Functionality
   // ==========================================
+  function openPhotoById(photoId) {
+    // Find photo index in currentPhotos
+    const index = currentPhotos.findIndex(p => (p.id || p._id) == photoId);
+    if (index !== -1) {
+      openLightbox(index);
+    }
+  }
+
   function openLightbox(index) {
     currentLightboxIndex = index;
     updateLightboxContent();
@@ -661,10 +804,14 @@
     
     const title = photo.title || 'Untitled';
     const description = photo.description || '';
+    const photoId = photo.id || photo._id;
 
     $('#lightbox-image').attr('src', imageUrl).attr('alt', title);
     $('#lightbox-title').text(title);
     $('#lightbox-description').text(description);
+    
+    // Update share button
+    $('#lightbox-share-btn').attr('data-photo-id', photoId).attr('data-title', title);
   }
 
   function nextPhoto() {
@@ -697,6 +844,82 @@
       if (e.key === 'ArrowLeft') prevPhoto();
     }
   });
+
+  // ==========================================
+  // Share Functionality
+  // ==========================================
+  window.sharePhoto = function(photoId, title) {
+    const url = `${window.location.origin}${window.location.pathname}#photo/${photoId}`;
+    const text = `Check out this photo: ${title}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: title,
+        text: text,
+        url: url
+      }).catch(err => console.log('Error sharing:', err));
+    } else {
+      // Fallback - copy to clipboard
+      copyToClipboard(url);
+      showShareNotification('Photo link copied to clipboard!');
+    }
+  };
+  
+  window.shareAlbum = function(albumSlug, title) {
+    const url = `${window.location.origin}${window.location.pathname}#album/${albumSlug}`;
+    const text = `Check out this album: ${title}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: title,
+        text: text,
+        url: url
+      }).catch(err => console.log('Error sharing:', err));
+    } else {
+      // Fallback - copy to clipboard
+      copyToClipboard(url);
+      showShareNotification('Album link copied to clipboard!');
+    }
+  };
+  
+  function copyToClipboard(text) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  }
+  
+  function showShareNotification(message) {
+    // Create notification element
+    const notification = $(`
+      <div class="share-notification">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        ${message}
+      </div>
+    `);
+    
+    $('body').append(notification);
+    
+    setTimeout(() => {
+      notification.addClass('show');
+    }, 100);
+    
+    setTimeout(() => {
+      notification.removeClass('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
 
   // ==========================================
   // Lazy Loading Images

@@ -1250,3 +1250,179 @@ section {
 .mb-4 { margin-bottom: var(--space-4); }
 .mb-6 { margin-bottom: var(--space-6); }
 .mb-8 { margin-bottom: var(--space-8); }
+
+/* ========================================
+   Photo Watermark
+   ======================================== */
+.photo-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.photo-watermark {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  font-family: var(--font-heading);
+}
+
+/* ========================================
+   Share Buttons
+   ======================================== */
+.photo-share-btn {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 40px;
+  height: 40px;
+  background: rgba(10, 10, 15, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: 1px solid var(--color-border);
+  z-index: 15;
+  opacity: 0;
+}
+
+.photo-card:hover .photo-share-btn {
+  opacity: 1;
+}
+
+.photo-share-btn:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+.album-share-btn,
+.lightbox-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-left: var(--space-3);
+}
+
+.album-share-btn:hover,
+.lightbox-share-btn:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+/* ========================================
+   Album Page Styles
+   ======================================== */
+.album-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-6);
+}
+
+.album-back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-primary);
+  transform: translateX(-4px);
+}
+
+/* ========================================
+   Share Notification
+   ======================================== */
+.share-notification {
+  position: fixed;
+  bottom: var(--space-8);
+  right: var(--space-8);
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(20px);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-primary);
+  box-shadow: var(--shadow-glow);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  z-index: 10000;
+  transform: translateY(120%);
+  transition: transform var(--transition-base);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.share-notification.show {
+  transform: translateY(0);
+}
+
+.share-notification svg {
+  color: var(--color-success, #22c55e);
+  flex-shrink: 0;
+}
+
+/* ========================================
+   Lightbox Image Wrapper
+   ======================================== */
+.lightbox-image-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.lightbox-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+@media (max-width: 768px) {
+  .photo-share-btn {
+    opacity: 1;
+  }
+  
+  .album-share-btn,
+  .lightbox-share-btn {
+    padding: var(--space-2) var(--space-3);
+    font-size: 12px;
+  }
+  
+  .share-notification {
+    right: var(--space-4);
+    bottom: var(--space-4);
+    left: var(--space-4);
+    font-size: 13px;
+  }
+}
+
