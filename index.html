@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-BZFXPPXML7"></script>
   <script>
@@ -14,47 +14,46 @@
     gtag('js', new Date());
     gtag('config', 'G-BZFXPPXML7');
   </script>
-  
+
   <!-- SEO Meta Tags -->
   <title>BF Photography | Motorcycle Photography Portfolio</title>
-  <meta name="description" content="Ben Foggon Photography - Motorcycle photography portfolio showcasing racing, custom builds, and off-road adventures">
+  <meta name="description" content="Ben Foggon Photography — motorcycle photography portfolio showcasing racing, custom builds, and off-road adventures.">
   <meta name="keywords" content="photography, motorcycle photography, racing, custom motorcycles, portfolio, Ben Foggon">
   <meta name="author" content="Ben Foggon">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
-  
-  <!-- Canonical URL -->
+
+  <!-- Canonical -->
   <link rel="canonical" href="https://photos.benfoggon.com/">
-  
-  <!-- Open Graph / Facebook -->
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://photos.benfoggon.com/">
   <meta property="og:title" content="BF Photography | Motorcycle Photography">
-  <meta property="og:description" content="A personal collection of motorcycle photography showcasing racing, custom builds, and adventures">
+  <meta property="og:description" content="A personal collection of motorcycle photography showcasing racing, custom builds, and adventures.">
   <meta property="og:image" content="https://photos.benfoggon.com/assets/og-image.jpg">
   <meta property="og:site_name" content="BF Photography">
-  
+
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://photos.benfoggon.com/">
   <meta name="twitter:title" content="BF Photography | Motorcycle Photography">
-  <meta name="twitter:description" content="Motorcycle photography showcasing racing, custom builds, and adventures">
+  <meta name="twitter:description" content="Motorcycle photography showcasing racing, custom builds, and adventures.">
   <meta name="twitter:image" content="https://photos.benfoggon.com/assets/og-image.jpg">
-  
+
   <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="180x180" href="./favicons/apple-icon-180x180.png">
   <link rel="icon" type="image/png" sizes="32x32" href="./favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="./favicons/favicon-16x16.png">
   <link rel="manifest" href="./favicons/manifest.json">
-  <meta name="theme-color" content="#db01f9">
-  
+  <meta name="theme-color" content="#a855f7">
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Stylesheets -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css">
-  
+
   <!-- Structured Data -->
   <script type="application/ld+json">
   {
@@ -63,70 +62,74 @@
     "name": "Ben Foggon",
     "url": "https://photos.benfoggon.com",
     "jobTitle": "Photographer",
-    "description": "Motorcycle photographer specializing in racing, custom builds, and adventure photography",
-    "sameAs": [
-      "https://benfoggon.com",
-      "https://projectnetworks.co.uk"
-    ]
+    "description": "Motorcycle photographer specialising in racing, custom builds, and adventure photography.",
+    "sameAs": ["https://benfoggon.com", "https://projectnetworks.co.uk"]
   }
   </script>
 </head>
 
 <body>
-  <!-- Animated Background Effects -->
-  <div class="noise-overlay"></div>
-  <div class="gradient-bg">
+  <!-- Canvas Particle Network -->
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+  <!-- Noise Overlay -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- Gradient Orbs -->
+  <div class="gradient-bg" aria-hidden="true">
     <div class="gradient-orb orb-1"></div>
     <div class="gradient-orb orb-2"></div>
     <div class="gradient-orb orb-3"></div>
   </div>
 
   <!-- Preloader -->
-  <div id="js-preloader" class="js-preloader">
-    <div class="preloader-inner">
-      <div class="preloader-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-          <circle cx="12" cy="13" r="4"></circle>
-        </svg>
+  <div id="preloader" role="status" aria-label="Loading">
+    <div class="preloader-content">
+      <div class="preloader-logo" aria-hidden="true">
+        <span>B</span><span>F</span>
       </div>
-      <div class="preloader-spinner"></div>
+      <div class="preloader-track">
+        <div class="preloader-fill"></div>
+      </div>
+      <p class="preloader-label">Photography</p>
     </div>
   </div>
 
   <!-- Navigation -->
-  <nav class="main-nav" role="navigation" aria-label="Main navigation">
-    <div class="container nav-container">
-      <a href="#home" class="logo" aria-label="BF Photography Home" id="logo-home">
-        <span class="logo-text">BF</span>
-        <span class="logo-badge" id="photography-dropdown-trigger">
+  <nav class="main-nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <!-- Logo with Dropdown Trigger -->
+      <a href="#home" class="logo" id="logo-home" aria-label="BF Photography Home">
+        <div class="logo-icon logo-icon-sm">BF</div>
+        <span class="logo-name">Ben Foggon</span>
+        <span class="logo-tag" id="photography-dropdown-trigger">
           Photography
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropdown-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="dropdown-arrow" aria-hidden="true">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </span>
       </a>
-      
+
       <!-- Dropdown Menu -->
-      <div class="photography-dropdown" id="photography-dropdown">
-        <a href="https://benfoggon.com" target="_blank" class="dropdown-item portfolio-item">
+      <div class="photography-dropdown" id="photography-dropdown" role="menu">
+        <a href="https://benfoggon.com" target="_blank" rel="noopener" class="dropdown-item portfolio-item" role="menuitem">
           <div class="dropdown-item-content">
             <div class="dropdown-icon portfolio-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
               </svg>
             </div>
             <div class="dropdown-text">
               <div class="dropdown-title">Portfolio</div>
-              <div class="dropdown-description">Professional work & projects</div>
+              <div class="dropdown-description">Professional work &amp; projects</div>
             </div>
           </div>
         </a>
-        <a href="https://projectnetworks.co.uk" target="_blank" class="dropdown-item network-item">
+        <a href="https://projectnetworks.co.uk" target="_blank" rel="noopener" class="dropdown-item network-item" role="menuitem">
           <div class="dropdown-item-content">
             <div class="dropdown-icon network-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="2" y1="12" x2="22" y2="12"></line>
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
@@ -134,110 +137,153 @@
             </div>
             <div class="dropdown-text">
               <div class="dropdown-title">Project Networks</div>
-              <div class="dropdown-description">Gaming community & servers</div>
+              <div class="dropdown-description">Gaming community &amp; servers</div>
             </div>
           </div>
         </a>
       </div>
-      
-      <div class="nav-links">
-        <a href="#home" class="nav-link active">Home</a>
-        <a href="#featured" class="nav-link">Featured</a>
-        <a href="#albums" class="nav-link">Albums</a>
-        <a href="#about" class="nav-link">About</a>
-        <a href="https://benfoggon.com" class="nav-link nav-link-cta" target="_blank">Contact</a>
-      </div>
-      <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
-        <span></span>
-        <span></span>
-        <span></span>
+
+      <!-- Nav Links -->
+      <ul class="nav-links" id="nav-links" role="list">
+        <li><a href="#home"     class="nav-link active">Home</a></li>
+        <li><a href="#featured" class="nav-link">Featured</a></li>
+        <li><a href="#albums"   class="nav-link">Albums</a></li>
+        <li><a href="#about"    class="nav-link">About</a></li>
+      </ul>
+
+      <!-- Mobile Toggle -->
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <header id="home" class="hero" role="banner">
+  <!-- =====================================================
+       HERO
+       ===================================================== -->
+  <header id="home" class="hero-section" role="banner">
     <div class="container">
-      <div class="hero-content">
-        <div class="hero-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
-          <span>Portfolio</span>
-        </div>
-        <h1 class="hero-title">
-          <span class="gradient-text">Motorcycle Photography</span>
-        </h1>
-        <p class="hero-subtitle">Capturing the Spirit of the Ride</p>
-        <p class="hero-text">
-          From the adrenaline of track racing to the artistry of custom builds, I document the passion and craftsmanship that makes motorcycling extraordinary. Each photograph tells a story of speed, style, and freedom.
-        </p>
-        <div class="hero-actions">
-          <a href="#featured" class="btn btn-primary btn-large">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      <div class="hero-inner">
+        <div class="hero-text-block">
+
+          <!-- Badge -->
+          <div class="hero-badge" id="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
             </svg>
-            View Featured
-          </a>
-          <a href="#albums" class="btn btn-outline btn-large">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-            Browse Albums
-          </a>
-        </div>
+            <span>Yeovil, UK</span>
+          </div>
+
+          <!-- Title -->
+          <h1 class="hero-title">
+            <span class="hero-line-1">Capturing the</span>
+            <span class="hero-line-2 split-text">Ride</span>
+          </h1>
+
+          <!-- Subtitle -->
+          <p class="hero-sub" id="hero-sub">Motorcycle Photography</p>
+
+          <!-- Description -->
+          <p class="hero-desc" id="hero-desc">
+            From the adrenaline of track racing to the artistry of custom builds, I document the passion and craftsmanship that makes motorcycling extraordinary. Each photograph tells a story of speed, style, and freedom.
+          </p>
+
+          <!-- Actions -->
+          <div class="hero-actions" id="hero-actions">
+            <a href="#featured" class="btn btn-primary btn-lg btn-glow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              View Featured
+            </a>
+            <a href="#albums" class="btn btn-ghost btn-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              Browse Albums
+            </a>
+          </div>
+
+          <!-- Stats -->
+          <div class="hero-stats" id="hero-stats">
+            <div class="hstat">
+              <div class="hstat-num"><span class="counter" data-target="100">0</span><span class="hstat-suffix">+</span></div>
+              <span class="hstat-label">Photos</span>
+            </div>
+            <div class="hstat-divider" aria-hidden="true"></div>
+            <div class="hstat">
+              <div class="hstat-num"><span class="counter" data-target="4">0</span><span class="hstat-suffix">+</span></div>
+              <span class="hstat-label">Albums</span>
+            </div>
+            <div class="hstat-divider" aria-hidden="true"></div>
+            <div class="hstat">
+              <div class="hstat-num"><span class="counter" data-target="4">0</span><span class="hstat-suffix">+</span></div>
+              <span class="hstat-label">Years</span>
+            </div>
+          </div>
+
+        </div><!-- /.hero-text-block -->
       </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="hero-scroll" aria-hidden="true">
+      <div class="hero-scroll-dot"></div>
     </div>
   </header>
 
-  <!-- Featured Photos Section -->
+  <!-- =====================================================
+       FEATURED PHOTOS
+       ===================================================== -->
   <section id="featured" class="featured-section">
     <div class="container">
-      <div class="section-header">
+      <header class="section-header reveal-section">
         <span class="section-label">Highlights</span>
         <h2 class="section-title">Featured Photography</h2>
-        <p class="section-description">A curated selection of my best motorcycle photography</p>
-      </div>
+        <p class="section-desc">A curated selection of my best motorcycle photography</p>
+      </header>
 
       <div class="photo-grid" id="featured-grid">
-        <!-- Photos will be loaded dynamically -->
         <div class="loading-state">
           <div class="spinner"></div>
-          <p>Loading featured photos...</p>
+          <p>Loading featured photos&hellip;</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Albums Section -->
+  <!-- =====================================================
+       ALBUMS
+       ===================================================== -->
   <section id="albums" class="albums-section">
     <div class="container">
-      <div class="section-header">
+      <header class="section-header reveal-section">
         <span class="section-label">Collections</span>
         <h2 class="section-title">Photo Albums</h2>
-        <p class="section-description">Explore organized collections of motorcycle photography</p>
-      </div>
+        <p class="section-desc">Explore organised collections of motorcycle photography</p>
+      </header>
 
       <div class="albums-grid" id="albums-grid">
-        <!-- Albums will be loaded dynamically -->
         <div class="loading-state">
           <div class="spinner"></div>
-          <p>Loading albums...</p>
+          <p>Loading albums&hellip;</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- About Section -->
+  <!-- =====================================================
+       ABOUT
+       ===================================================== -->
   <section id="about" class="about-section">
     <div class="container">
-      <div class="about-grid">
+      <div class="about-grid reveal-section">
         <div class="about-content">
           <span class="section-label">About</span>
-          <h2 class="section-title">Passion for <span class="gradient-text">Motorcycle Photography</span></h2>
+          <h2 class="section-title">Passion for Motorcycle Photography</h2>
           <div class="about-text">
             <p>
               I'm passionate about capturing the raw energy and beauty of motorcycles. From track racing to custom builds, I document the culture and craftsmanship that makes motorcycling special.
@@ -246,104 +292,104 @@
               Each photo tells a story of speed, style, and freedom. Whether it's the intensity of a race, the artistry of a custom build, or the adventure of the open road, my goal is to preserve these moments in stunning detail.
             </p>
           </div>
-          <div class="about-features">
+          <div class="feature-list about-features">
             <div class="feature-item">
               <div class="feature-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                   <circle cx="12" cy="13" r="4"></circle>
                 </svg>
               </div>
-              <div class="feature-text">
+              <div class="feature-body">
                 <h4>Professional Quality</h4>
                 <p>High-resolution images perfect for prints and digital use</p>
               </div>
             </div>
             <div class="feature-item">
               <div class="feature-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
               </div>
-              <div class="feature-text">
+              <div class="feature-body">
                 <h4>Motorcycle Specialist</h4>
-                <p>Specialized in racing, custom builds, and adventure photography</p>
+                <p>Specialised in racing, custom builds, and adventure photography</p>
               </div>
             </div>
             <div class="feature-item">
               <div class="feature-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
               </div>
-              <div class="feature-text">
+              <div class="feature-body">
                 <h4>Passion Driven</h4>
                 <p>Every shot captures the soul and spirit of the ride</p>
               </div>
             </div>
           </div>
         </div>
-        <div class="about-image">
-          <div class="image-frame">
+        <div class="about-image-col">
+          <div class="about-img-frame">
             <img src="https://images.unsplash.com/photo-1558981852-426c6c22a060?w=800" alt="Motorcycle photography equipment" loading="lazy">
-            <div class="image-overlay"></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Sister Sites Section -->
+  <!-- =====================================================
+       NETWORK (SISTER SITES)
+       ===================================================== -->
   <section id="network" class="sister-sites-section">
     <div class="container">
-      <div class="section-header">
+      <header class="section-header reveal-section">
         <span class="section-label">Network</span>
         <h2 class="section-title">Other Projects</h2>
-        <p class="section-description">Explore my other work and projects</p>
-      </div>
+        <p class="section-desc">Explore my other work and projects</p>
+      </header>
 
-      <div class="project-grid">
-        <!-- Portfolio Card -->
-        <article class="project-card">
-          <div class="project-image">
+      <div class="card-grid project-grid">
+        <!-- Portfolio -->
+        <article class="pcard">
+          <div class="pcard-img">
             <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800" alt="Portfolio" loading="lazy">
+            <span class="pcard-badge pcard-badge-live"><span class="live-dot"></span>Live</span>
           </div>
-          <div class="project-content">
-            <h3 class="project-title">My Portfolio</h3>
-            <p class="project-description">
-              Learn more about my professional work, skills, and projects. Get in touch for collaborations or photography inquiries.
-            </p>
-            <div class="project-footer">
-              <a href="https://benfoggon.com" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                  <polyline points="15 3 21 3 21 9"></polyline>
-                  <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
+          <div class="pcard-body">
+            <h3 class="pcard-title">My Portfolio</h3>
+            <p class="pcard-desc">Learn more about my professional work, skills, and projects. Get in touch for collaborations or photography enquiries.</p>
+            <div class="pcard-tags">
+              <span class="tag">Web Dev</span>
+              <span class="tag">Design</span>
+            </div>
+            <div class="pcard-footer">
+              <a href="https://benfoggon.com" target="_blank" rel="noopener" class="btn btn-primary">
                 Visit Portfolio
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
               </a>
             </div>
           </div>
         </article>
 
-        <!-- Project Networks Card -->
-        <article class="project-card">
-          <div class="project-image">
+        <!-- Project Networks -->
+        <article class="pcard">
+          <div class="pcard-img">
             <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800" alt="Project Networks" loading="lazy">
+            <span class="pcard-badge pcard-badge-live"><span class="live-dot"></span>Live</span>
           </div>
-          <div class="project-content">
-            <h3 class="project-title">Project Networks</h3>
-            <p class="project-description">
-              A UK-based server network for gaming. Join our community for Minecraft, Terraria, and more multiplayer games.
-            </p>
-            <div class="project-footer">
-              <a href="https://projectnetworks.co.uk" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                  <polyline points="15 3 21 3 21 9"></polyline>
-                  <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
+          <div class="pcard-body">
+            <h3 class="pcard-title">Project Networks</h3>
+            <p class="pcard-desc">A UK-based server network for gaming. Join our community for Minecraft, Terraria, and more multiplayer games.</p>
+            <div class="pcard-tags">
+              <span class="tag">Gaming</span>
+              <span class="tag">Servers</span>
+              <span class="tag">UK</span>
+            </div>
+            <div class="pcard-footer">
+              <a href="https://projectnetworks.co.uk" target="_blank" rel="noopener" class="btn btn-primary">
                 Visit Network
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
               </a>
             </div>
           </div>
@@ -352,48 +398,79 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <h3 class="footer-logo">BF Photography</h3>
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+  <footer class="main-footer">
+    <div class="container footer-inner">
+      <div class="footer-grid">
+        <!-- Brand -->
+        <div>
+          <div class="footer-logo-row">
+            <div class="logo-icon logo-icon-sm">BF</div>
+            <span class="logo-name">BF Photography</span>
+          </div>
           <p class="footer-tagline">Capturing the Spirit of the Ride</p>
         </div>
-        <div class="footer-links">
-          <div class="footer-column">
-            <h4>Navigation</h4>
-            <ul>
-              <li><a href="#home">Home</a></li>
-              <li><a href="#featured">Featured</a></li>
-              <li><a href="#albums">Albums</a></li>
-              <li><a href="#about">About</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4>Connect</h4>
-            <ul>
-              <li><a href="https://benfoggon.com" target="_blank">Portfolio</a></li>
-              <li><a href="https://projectnetworks.co.uk" target="_blank">Project Networks</a></li>
-            </ul>
-          </div>
+
+        <!-- Navigation -->
+        <div>
+          <h3 class="footer-heading">Navigation</h3>
+          <ul class="footer-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#featured">Featured</a></li>
+            <li><a href="#albums">Albums</a></li>
+            <li><a href="#about">About</a></li>
+          </ul>
+        </div>
+
+        <!-- Projects -->
+        <div>
+          <h3 class="footer-heading">Projects</h3>
+          <ul class="footer-links">
+            <li><a href="https://benfoggon.com" target="_blank" rel="noopener">Portfolio</a></li>
+            <li><a href="https://projectnetworks.co.uk" target="_blank" rel="noopener">Project Networks</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <h3 class="footer-heading">Contact</h3>
+          <ul class="footer-contact-list">
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <a href="mailto:contact@benfoggon.com">contact@benfoggon.com</a>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+              <a href="https://github.com/SG3xHERO" target="_blank" rel="noopener">SG3xHERO</a>
+            </li>
+          </ul>
         </div>
       </div>
+
       <div class="footer-bottom">
-        <p>&copy; 2025 Ben Foggon Photography. All rights reserved.</p>
+        <p class="footer-copy">&copy; 2025 Ben Foggon Photography. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="https://benfoggon.com">Portfolio</a>
+          <span class="footer-sep">&bull;</span>
+          <a href="https://projectnetworks.co.uk">Project Networks</a>
+        </div>
       </div>
     </div>
   </footer>
 
-  <!-- Back to Top Button -->
+  <!-- Back to Top -->
   <button id="backToTop" class="back-to-top" aria-label="Back to top">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
       <polyline points="18 15 12 9 6 15"></polyline>
     </svg>
   </button>
 
-  <!-- Photo Lightbox -->
-  <div id="lightbox" class="lightbox">
+  <!-- =====================================================
+       LIGHTBOX (preserved exactly from original)
+       ===================================================== -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo lightbox">
     <button class="lightbox-close" aria-label="Close lightbox">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -419,7 +496,7 @@
       <div class="lightbox-info">
         <div class="lightbox-info-header">
           <div>
-            <div id="lightbox-album-context" class="lightbox-album-context" style="display: none;">
+            <div id="lightbox-album-context" class="lightbox-album-context" style="display:none;">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -457,6 +534,7 @@
 
   <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
