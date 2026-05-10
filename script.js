@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BF Photography — Anime.js Interactions + CMS Gallery Logic
  * Canvas particles · Preloader · Hero · Scroll reveals
  * Payload CMS integration · Lightbox · Download · Share
@@ -12,12 +12,13 @@
 
   /* ---- Utilities ---- */
   function splitChars(el) {
-    var text = el.textContent;
-    el.innerHTML = text.split('').map(function (c) {
-      return c === ' '
-        ? '<span class="char" style="display:inline-block;width:0.3em">&nbsp;</span>'
-        : '<span class="char">' + c + '</span>';
-    }).join('');
+    var words = el.textContent.trim().split(' ');
+    el.innerHTML = words.map(function (word) {
+      var chars = word.split('').map(function (c) {
+        return '<span class="char">' + c + '</span>';
+      }).join('');
+      return '<span style="display:inline-block;white-space:nowrap">' + chars + '</span>';
+    }).join('<span class="char word-gap" style="display:inline-block;width:0.25em">&nbsp;</span>');
     return el.querySelectorAll('.char');
   }
 
@@ -65,7 +66,7 @@
         p.update();
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(168, 85, 247, ' + p.alpha + ')';
+        ctx.fillStyle = 'rgba(239, 68, 68, ' + p.alpha + ')';
         ctx.fill();
         for (var j = i + 1; j < particles.length; j++) {
           var q = particles[j];
@@ -76,7 +77,7 @@
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = 'rgba(168, 85, 247, ' + strength + ')';
+            ctx.strokeStyle = 'rgba(239, 68, 68, ' + strength + ')';
             ctx.lineWidth = 1;
             ctx.stroke();
           }

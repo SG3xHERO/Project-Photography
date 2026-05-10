@@ -1,4 +1,4 @@
-/* =====================================================
+﻿/* =====================================================
    BF Photography — Dark Glassmorphism Redesign
    Same design system as Project Networks · Anime.js · 2026
    ===================================================== */
@@ -14,18 +14,18 @@
   --c-border:       rgba(255,255,255,0.07);
   --c-border-hover: rgba(255,255,255,0.14);
 
-  --c-purple:       #a855f7;
-  --c-purple-light: #c084fc;
-  --c-purple-dark:  #7c3aed;
-  --c-blue:         #3b82f6;
-  --c-blue-light:   #60a5fa;
-  --c-cyan:         #06b6d4;
+  --c-purple:       #ef4444;
+  --c-purple-light: #f87171;
+  --c-purple-dark:  #dc2626;
+  --c-blue:         #f97316;
+  --c-blue-light:   #fb923c;
+  --c-cyan:         #fb923c;
   --c-green:        #10b981;
   --c-amber:        #f59e0b;
 
-  --g-primary:   linear-gradient(135deg, #a855f7, #3b82f6);
-  --g-primary-r: linear-gradient(135deg, #3b82f6, #a855f7);
-  --g-glow:      linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15));
+  --g-primary:   linear-gradient(135deg, #ef4444, #f97316);
+  --g-primary-r: linear-gradient(135deg, #f97316, #ef4444);
+  --g-glow:      linear-gradient(135deg, rgba(239,68,68,0.15), rgba(249,115,22,0.15));
   --g-card:      linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
 
   --t-primary: #ffffff;
@@ -45,8 +45,8 @@
   --r-xl: 24px;  --r-2xl: 32px; --r-full: 9999px;
 
   --shadow-card:        0 8px 32px rgba(0,0,0,0.4);
-  --shadow-glow-purple: 0 0 40px rgba(168,85,247,0.25);
-  --shadow-glow-blue:   0 0 40px rgba(59,130,246,0.25);
+  --shadow-glow-purple: 0 0 40px rgba(239,68,68,0.25);
+  --shadow-glow-blue:   0 0 40px rgba(249,115,22,0.25);
 
   --ease:     cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
@@ -119,9 +119,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   opacity: 0;
 }
 
-.orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, #a855f7 0%, transparent 70%); top: -250px; right: -200px; }
-.orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, #3b82f6 0%, transparent 70%); bottom: -200px; left: -150px; }
-.orb-3 { width: 500px; height: 500px; background: radial-gradient(circle, #06b6d4 0%, transparent 70%); top: 40%; left: 40%; transform: translate(-50%,-50%); }
+.orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, #ef4444 0%, transparent 70%); top: -250px; right: -200px; }
+.orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, #f97316 0%, transparent 70%); bottom: -200px; left: -150px; }
+.orb-3 { width: 500px; height: 500px; background: radial-gradient(circle, #fb923c 0%, transparent 70%); top: 40%; left: 40%; transform: translate(-50%,-50%); }
 
 /* =====================================================
    4. PRELOADER
@@ -277,8 +277,8 @@ section { position: relative; }
   font-size: 0.6875rem;
   font-weight: 600;
   padding: 2px 8px;
-  background: rgba(168,85,247,0.15);
-  border: 1px solid rgba(168,85,247,0.3);
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
   border-radius: var(--r-full);
   color: var(--c-purple-light);
   letter-spacing: 0.05em;
@@ -325,7 +325,7 @@ section { position: relative; }
   color: var(--t-primary);
 }
 
-.dropdown-item:hover { background: rgba(168,85,247,0.08); }
+.dropdown-item:hover { background: rgba(239,68,68,0.08); }
 
 .dropdown-item-content {
   display: flex;
@@ -342,8 +342,8 @@ section { position: relative; }
   flex-shrink: 0;
 }
 
-.portfolio-icon { background: rgba(168,85,247,0.15); color: var(--c-purple); border: 1px solid rgba(168,85,247,0.25); }
-.network-icon   { background: rgba(59,130,246,0.15);  color: var(--c-blue);   border: 1px solid rgba(59,130,246,0.25); }
+.portfolio-icon { background: rgba(239,68,68,0.15); color: var(--c-purple); border: 1px solid rgba(239,68,68,0.25); }
+.network-icon   { background: rgba(249,115,22,0.15);  color: var(--c-blue);   border: 1px solid rgba(249,115,22,0.25); }
 
 .dropdown-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
 .dropdown-description { font-size: 0.8rem; color: var(--t-subtle); }
@@ -423,19 +423,19 @@ section { position: relative; }
   background: var(--g-primary);
   color: #fff;
   border: none;
-  box-shadow: 0 4px 15px rgba(168,85,247,0.3);
+  box-shadow: 0 4px 15px rgba(239,68,68,0.3);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(168,85,247,0.4); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239,68,68,0.4); color: #fff; }
 
-.btn-glow { box-shadow: 0 0 20px rgba(168,85,247,0.4), 0 4px 15px rgba(168,85,247,0.3); }
-.btn-glow:hover { box-shadow: 0 0 30px rgba(168,85,247,0.6), 0 8px 25px rgba(168,85,247,0.4); }
+.btn-glow { box-shadow: 0 0 20px rgba(239,68,68,0.4), 0 4px 15px rgba(239,68,68,0.3); }
+.btn-glow:hover { box-shadow: 0 0 30px rgba(239,68,68,0.6), 0 8px 25px rgba(239,68,68,0.4); }
 
 .btn-ghost {
   background: transparent;
   color: var(--t-muted);
   border: 1px solid var(--c-border-hover);
 }
-.btn-ghost:hover { color: var(--t-primary); border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.08); }
+.btn-ghost:hover { color: var(--t-primary); border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
 
 .btn-lg { padding: 13px 28px; font-size: 1rem; }
 
@@ -455,7 +455,7 @@ section { position: relative; }
   transition: all var(--t-base);
 }
 
-.lightbox-action-btn:hover { color: var(--t-primary); background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.3); }
+.lightbox-action-btn:hover { color: var(--t-primary); background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); }
 
 /* Album share button (inside section title) */
 .album-share-btn {
@@ -534,8 +534,8 @@ section { position: relative; }
   align-items: center;
   gap: var(--space-2);
   padding: 6px 16px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.25);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
   border-radius: var(--r-full);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -699,15 +699,15 @@ section { position: relative; }
   align-items: center;
   justify-content: center;
   width: 36px; height: 36px;
-  background: rgba(168,85,247,0.15);
-  border: 1px solid rgba(168,85,247,0.3);
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
   border-radius: var(--r-md);
   color: var(--c-purple-light);
   cursor: pointer;
   transition: all var(--t-fast);
   align-self: flex-end;
 }
-.photo-share-btn:hover { background: rgba(168,85,247,0.3); }
+.photo-share-btn:hover { background: rgba(239,68,68,0.3); }
 
 /* =====================================================
    11. ALBUMS GRID & CARDS
@@ -730,7 +730,7 @@ section { position: relative; }
 }
 
 .album-card:hover {
-  border-color: rgba(168,85,247,0.25);
+  border-color: rgba(239,68,68,0.25);
   box-shadow: var(--shadow-card), var(--shadow-glow-purple);
   transform: translateY(-4px);
 }
@@ -753,8 +753,8 @@ section { position: relative; }
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: rgba(168,85,247,0.2);
-  border: 1px solid rgba(168,85,247,0.35);
+  background: rgba(239,68,68,0.2);
+  border: 1px solid rgba(239,68,68,0.35);
   border-radius: var(--r-full);
   font-size: 0.75rem;
   font-weight: 600;
@@ -776,8 +776,8 @@ section { position: relative; }
   align-items: center;
   gap: var(--space-2);
   padding: 8px 18px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.25);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
   border-radius: var(--r-md);
   color: var(--c-purple-light);
   font-weight: 600;
@@ -785,7 +785,7 @@ section { position: relative; }
   cursor: pointer;
   transition: all var(--t-base);
 }
-.album-back-btn:hover { background: rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.4); }
+.album-back-btn:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); }
 
 /* =====================================================
    12. ABOUT SECTION
@@ -822,12 +822,12 @@ section { position: relative; }
   transition: border-color var(--t-base), background var(--t-base);
 }
 
-.feature-item:hover { border-color: rgba(168,85,247,0.25); background: rgba(168,85,247,0.04); }
+.feature-item:hover { border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04); }
 
 .feature-icon {
   width: 40px; height: 40px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.2);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
   border-radius: var(--r-md);
   display: flex;
   align-items: center;
@@ -873,7 +873,7 @@ section { position: relative; }
 }
 
 .pcard:hover {
-  border-color: rgba(168,85,247,0.25);
+  border-color: rgba(239,68,68,0.25);
   box-shadow: var(--shadow-card), var(--shadow-glow-purple);
   transform: translateY(-4px);
 }
@@ -934,8 +934,8 @@ section { position: relative; }
   font-size: 0.75rem;
   font-weight: 500;
   padding: 3px 10px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.2);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
   border-radius: var(--r-full);
   color: var(--c-purple-light);
 }
@@ -1012,7 +1012,7 @@ section { position: relative; }
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 4px 20px rgba(168,85,247,0.4);
+  box-shadow: 0 4px 20px rgba(239,68,68,0.4);
   transition: all var(--t-base);
   opacity: 0;
   transform: translateY(10px);
@@ -1023,7 +1023,7 @@ section { position: relative; }
 }
 
 .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.back-to-top:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(168,85,247,0.5); }
+.back-to-top:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(239,68,68,0.5); }
 
 /* =====================================================
    16. LIGHTBOX
@@ -1086,7 +1086,7 @@ section { position: relative; }
 .lightbox-next { right: var(--space-5); }
 
 .lightbox-prev:hover,
-.lightbox-next:hover { color: var(--t-primary); background: rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.35); }
+.lightbox-next:hover { color: var(--t-primary); background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.35); }
 
 .lightbox-content {
   max-width: 90vw;
@@ -1168,7 +1168,7 @@ section { position: relative; }
   left: 50%;
   transform: translateX(-50%) translateY(80px);
   background: rgba(14,14,28,0.95);
-  border: 1px solid rgba(168,85,247,0.35);
+  border: 1px solid rgba(239,68,68,0.35);
   border-radius: var(--r-xl);
   padding: 12px 20px;
   display: flex;
