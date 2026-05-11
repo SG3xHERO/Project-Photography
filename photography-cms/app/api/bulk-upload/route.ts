@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import path from 'path'
+import AdmZip from 'adm-zip'
 
 const ALLOWED_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp', '.heic', '.gif', '.avif'])
 
@@ -79,25 +80,14 @@ export async function POST(req: NextRequest) {
       const ext = path.extname(name).toLowerCase()
 
       if (ext === '.zip') {
-        // Dynamic import so adm-zip is only loaded when a ZIP is actually uploaded
-        let AdmZip: typeof import('adm-zip')
+        let zip: AdmZip
         try {
-          AdmZip = (await import('adm-zip')).default as any
-        } catch {
-          return NextResponse.json(
-            { error: 'ZIP support requires adm-zip — run npm install in photography-cms' },
-            { status: 500 },
-          )
-        }
-
-        let zip: import('adm-zip')
-        try {
-          zip = new (AdmZip as any)(buffer)
+          zip = new AdmZip(buffer)
         } catch {
           return NextResponse.json({ error: 'Could not parse ZIP file' }, { status: 400 })
         }
 
-        const entries = (zip as any).getEntries() as any[]
+        const entries = zip.getEntries()
 
         for (const entry of entries) {
           if (entry.isDirectory) continue
