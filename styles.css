@@ -665,6 +665,9 @@ section { position: relative; }
 
 .photo-card:hover .photo-wrapper img { transform: scale(1.07); }
 
+/* Portrait photos: anchor to top so the subject isn't cropped away */
+.photo-wrapper img.portrait-thumb { object-position: top center; }
+
 /* Watermark overlay on cards */
 .photo-watermark {
   position: absolute;
@@ -1130,6 +1133,14 @@ section { position: relative; }
   display: block;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* Portrait photos in lightbox: let height drive the size, not width */
+.lightbox-image-wrapper img.portrait-img {
+  width: auto;
+  height: 100%;
+  max-height: 86vh;
+  max-width: 100%;
 }
 
 .lightbox-image-wrapper .photo-watermark {

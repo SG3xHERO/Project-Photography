@@ -531,10 +531,13 @@
       if (photo.image) {
         if (typeof photo.image === 'string') {
           imageUrl = photo.image;
-        } else if (photo.image.sizes && photo.image.sizes.card) {
-          imageUrl = photo.image.sizes.card.url;
-        } else if (photo.image.url) {
-          imageUrl = photo.image.url;
+        } else {
+          // Payload doesn't generate sized variants for images smaller than the target dimension,
+          // so .url can be null — fall through the chain to the original upload URL.
+          imageUrl = photo.image.sizes?.card?.url
+                  || photo.image.sizes?.thumbnail?.url
+                  || photo.image.url
+                  || '';
         }
         if (imageUrl && !imageUrl.startsWith('http')) {
           imageUrl = API_BASE.replace('/api', '') + imageUrl;
@@ -546,9 +549,13 @@
       var description = photo.description || '';
       var photoId     = photo.id || photo._id || index;
 
+      var isPortrait = photo.image && typeof photo.image === 'object'
+                       && photo.image.height && photo.image.width
+                       && photo.image.height > photo.image.width;
+
       var photoCard = '<article class="photo-card" data-index="' + index + '" data-photo-id="' + photoId + '">' +
         '<div class="photo-wrapper">' +
-          '<img src="' + imageUrl + '" alt="' + title + '" loading="lazy" oncontextmenu="return false;" draggable="false">' +
+          '<img src="' + imageUrl + '" alt="' + title + '" loading="lazy" oncontextmenu="return false;" draggable="false"' + (isPortrait ? ' class="portrait-thumb"' : '') + '>' +
           '<div class="photo-watermark">Ben Foggon</div>' +
           '<div class="photo-protection-overlay"></div>' +
         '</div>' +
@@ -635,10 +642,11 @@
       if (album.coverImage) {
         if (typeof album.coverImage === 'string') {
           coverUrl = album.coverImage;
-        } else if (album.coverImage.sizes && album.coverImage.sizes.card) {
-          coverUrl = album.coverImage.sizes.card.url;
-        } else if (album.coverImage.url) {
-          coverUrl = album.coverImage.url;
+        } else {
+          coverUrl = album.coverImage.sizes?.card?.url
+                  || album.coverImage.sizes?.thumbnail?.url
+                  || album.coverImage.url
+                  || '';
         }
         if (coverUrl && !coverUrl.startsWith('http')) coverUrl = API_BASE.replace('/api', '') + coverUrl;
       }
@@ -837,14 +845,21 @@
     if (photo.image) {
       if (typeof photo.image === 'string') {
         imageUrl = photo.image;
-      } else if (photo.image.sizes && photo.image.sizes.full) {
-        imageUrl = photo.image.sizes.full.url;
-      } else if (photo.image.url) {
-        imageUrl = photo.image.url;
+      } else {
+        // Prefer full-res; fall back to card then original if Payload didn't generate the size
+        imageUrl = photo.image.sizes?.full?.url
+                || photo.image.sizes?.card?.url
+                || photo.image.url
+                || '';
       }
       if (imageUrl && !imageUrl.startsWith('http')) imageUrl = API_BASE.replace('/api', '') + imageUrl;
     }
     if (!imageUrl) imageUrl = photo.url || '';
+
+    var isPortrait = photo.image && typeof photo.image === 'object'
+                     && photo.image.height && photo.image.width
+                     && photo.image.height > photo.image.width;
+    $('#lightbox-image').toggleClass('portrait-img', !!isPortrait);
 
     var title       = photo.title || 'Untitled';
     var description = photo.description || '';

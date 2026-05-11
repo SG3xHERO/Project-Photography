@@ -440,6 +440,22 @@
       <div id="al-grid"></div>
     </section>
 
+    <!-- ═══ ALBUM DETAIL ═══ -->
+    <section class="section" id="section-album-detail">
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem">
+        <button class="btn btn-secondary btn-sm" onclick="nav('albums')">← Albums</button>
+        <div style="flex:1;min-width:0">
+          <div class="page-title" id="ad-title">Album</div>
+          <div style="color:var(--t-s);font-size:.82rem" id="ad-sub"></div>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-shrink:0">
+          <button class="btn btn-secondary btn-sm" id="ad-edit-btn" onclick="editAlbum(curAlbumDetailId)">Edit Album</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddPhotosModal()">+ Add Photos</button>
+        </div>
+      </div>
+      <div id="ad-grid"></div>
+    </section>
+
   </main>
 </div>
 
@@ -556,6 +572,35 @@
       <button class="btn btn-danger btn-sm" id="am-del-btn" onclick="deleteAlbumM()" style="display:none">Delete</button>
       <button class="btn btn-secondary" onclick="closeM('album-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="saveAlbumM()">Save Album</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADD PHOTOS TO ALBUM MODAL ═══ -->
+<div class="modal-bd" id="add-photos-modal">
+  <div class="modal" style="max-width:780px">
+    <div class="modal-hd">
+      <div class="modal-title">Add Photos to Album</div>
+      <button class="modal-x" onclick="closeM('add-photos-modal')">×</button>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap">
+      <input class="form-input" type="search" id="ap-search" placeholder="Search photos…" oninput="filterAddablePhotos()" style="flex:1;min-width:180px">
+      <select class="form-select" id="ap-cat" onchange="filterAddablePhotos()" style="min-width:130px">
+        <option value="">All Categories</option>
+        <option value="racing">Racing</option><option value="custom">Custom</option>
+        <option value="adventure">Adventure</option><option value="detail">Detail</option>
+        <option value="vintage">Vintage</option><option value="street">Street</option>
+        <option value="portrait">Portrait</option><option value="landscape">Landscape</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div id="ap-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.5rem;max-height:400px;overflow-y:auto"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap;gap:.75rem">
+      <span id="ap-sel-lbl" style="font-size:.8rem;color:var(--t-s)">0 selected</span>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-secondary" onclick="closeM('add-photos-modal')">Cancel</button>
+        <button class="btn btn-primary" id="ap-add-btn" onclick="addSelectedPhotosToAlbum()" disabled>Add Selected</button>
+      </div>
     </div>
   </div>
 </div>
@@ -704,8 +749,15 @@ async function checkSession() {
 function nav(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('section-' + name).classList.add('active');
-  document.querySelector(`.nav-item[data-s="${name}"]`).classList.add('active');
+  const sec = document.getElementById('section-' + name);
+  if (sec) sec.classList.add('active');
+  const navEl = document.querySelector(`.nav-item[data-s="${name}"]`);
+  if (navEl) navEl.classList.add('active');
+  else {
+    // sub-pages (album-detail) highlight the parent nav item
+    const parent = { 'album-detail': 'albums' }[name];
+    if (parent) document.querySelector(`.nav-item[data-s="${parent}"]`)?.classList.add('active');
+  }
   if (name === 'photos') loadPhotos();
   if (name === 'albums') loadAlbums();
   document.getElementById('sidebar').classList.remove('open');
@@ -857,11 +909,12 @@ async function savePhotoM() {
   const title = document.getElementById('pm-title').value.trim();
   if (!title) { toast('Title is required', 'error'); return; }
   const lensRaw = document.getElementById('pm-lens').value.trim().split('·').map(s => s.trim());
+  const albumId = document.getElementById('pm-album').value || null;
   const body = {
     title,
     description: document.getElementById('pm-desc').value.trim() || undefined,
     category:    document.getElementById('pm-cat').value  || undefined,
-    album:       document.getElementById('pm-album').value || null,
+    album:       albumId,
     location:    document.getElementById('pm-loc').value.trim()  || undefined,
     bike:        document.getElementById('pm-bike').value.trim() || undefined,
     camera:      document.getElementById('pm-camera').value.trim() || undefined,
@@ -872,9 +925,13 @@ async function savePhotoM() {
   };
   try {
     await api(`/photos/${curPhotoId}`, { method: 'PATCH', body: JSON.stringify(body) });
+    if (albumId) await syncPhotoToAlbum(curPhotoId, albumId);
     closeM('photo-modal'); toast('Photo saved', 'success');
-    if (document.getElementById('section-photos').classList.contains('active')) loadPhotos(phPage);
-    if (document.getElementById('section-overview').classList.contains('active')) loadOverview();
+    if (_afterSaveCallback) { _afterSaveCallback(); _afterSaveCallback = null; }
+    else {
+      if (document.getElementById('section-photos').classList.contains('active')) loadPhotos(phPage);
+      if (document.getElementById('section-overview').classList.contains('active')) loadOverview();
+    }
   } catch(e) { toast('Save failed: ' + e.message, 'error'); }
 }
 
@@ -905,12 +962,14 @@ async function loadAlbums() {
 
 function albumCard(a) {
   const cover = thumbUrl(a.coverImage);
+  const photoCount = (a.photos || []).length;
   return `<div class="album-card">
     ${cover ? `<img class="album-cover" src="${esc(cover)}" alt="${esc(a.title)}" loading="lazy">` : '<div class="album-cover"></div>'}
     <div class="album-info">
       <div class="album-title">${esc(a.title)}</div>
-      <div class="album-meta">${a.publishedDate ? new Date(a.publishedDate).toLocaleDateString() : ''}${a.featured ? ' · Featured' : ''}</div>
+      <div class="album-meta">${photoCount} photo${photoCount !== 1 ? 's' : ''}${a.publishedDate ? ' · ' + new Date(a.publishedDate).toLocaleDateString() : ''}${a.featured ? ' · Featured' : ''}</div>
       <div class="album-acts">
+        <button class="btn btn-primary btn-sm" onclick="openAlbumDetail('${a.id}')">View</button>
         <button class="btn btn-secondary btn-sm" onclick="editAlbum('${a.id}')">Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteAlbum('${a.id}','${esc(a.title)}')">Delete</button>
       </div>
@@ -1124,8 +1183,11 @@ function photoBody(i, mediaId) {
 
 async function saveOnePhoto(i) {
   const card = document.getElementById('tc-' + i);
+  const body = photoBody(i, uploadItems[i].mediaId);
   try {
-    await api('/photos', { method: 'POST', body: JSON.stringify(photoBody(i, uploadItems[i].mediaId)) });
+    const res = await api('/photos', { method: 'POST', body: JSON.stringify(body) });
+    const photoId = res.doc?.id || res.id;
+    if (body.album && photoId) await syncPhotoToAlbum(photoId, body.album);
     card.classList.add('saved');
     const btn = card.querySelector('button');
     btn.textContent = '✓ Saved'; btn.disabled = true;
@@ -1140,8 +1202,11 @@ async function saveAll() {
   for (let i = 0; i < uploadItems.length; i++) {
     const card = document.getElementById('tc-' + i);
     if (card.classList.contains('saved')) { saved++; continue; }
+    const body = photoBody(i, uploadItems[i].mediaId);
     try {
-      await api('/photos', { method: 'POST', body: JSON.stringify(photoBody(i, uploadItems[i].mediaId)) });
+      const res = await api('/photos', { method: 'POST', body: JSON.stringify(body) });
+      const photoId = res.doc?.id || res.id;
+      if (body.album && photoId) await syncPhotoToAlbum(photoId, body.album);
       card.classList.add('saved'); saved++;
     } catch(e) { toast(`Failed: ${uploadItems[i].originalName} — ${e.message}`, 'error'); }
   }
@@ -1159,6 +1224,176 @@ function resetUpload() {
   document.getElementById('up-prog').style.display = 'none';
   document.getElementById('prog-bar').style.width = '0%';
   setStage(1);
+}
+
+// ─── SYNC photo.album ↔ album.photos ────────────────
+async function syncPhotoToAlbum(photoId, albumId) {
+  if (!albumId || !photoId) return;
+  try {
+    const album = await api(`/albums/${albumId}?depth=0`);
+    const cur = (album.photos || []).map(p => typeof p === 'object' ? p.id : p);
+    if (cur.includes(photoId)) return; // already there
+    await api(`/albums/${albumId}`, { method: 'PATCH', body: JSON.stringify({ photos: [...cur, photoId] }) });
+  } catch(e) { console.warn('syncPhotoToAlbum failed:', e.message); }
+}
+
+async function removePhotoFromAlbum(photoId, albumId) {
+  if (!albumId || !photoId) return;
+  try {
+    const album = await api(`/albums/${albumId}?depth=0`);
+    const cur = (album.photos || []).map(p => typeof p === 'object' ? p.id : p).filter(id => id !== photoId);
+    await api(`/albums/${albumId}`, { method: 'PATCH', body: JSON.stringify({ photos: cur }) });
+  } catch(e) { console.warn('removePhotoFromAlbum failed:', e.message); }
+}
+
+// ─── ALBUM DETAIL ─────────────────────────────────────
+let curAlbumDetailId = null;
+let addablePhotos = []; // cache for add-photos modal
+let selectedAddPhotos = new Set();
+
+async function openAlbumDetail(id) {
+  curAlbumDetailId = id;
+  nav('album-detail');
+  await loadAlbumDetailData();
+}
+
+async function loadAlbumDetailData() {
+  const titleEl = document.getElementById('ad-title');
+  const subEl   = document.getElementById('ad-sub');
+  const grid    = document.getElementById('ad-grid');
+  titleEl.textContent = 'Loading…'; subEl.textContent = ''; grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    // Fetch album + photos in album (use both sources for completeness)
+    const [album, photosRes] = await Promise.all([
+      api(`/albums/${curAlbumDetailId}?depth=1`),
+      api(`/photos?where[album][equals]=${curAlbumDetailId}&limit=200&depth=1&sort=-createdAt`),
+    ]);
+    titleEl.textContent = album.title;
+    const photoCount = photosRes.totalDocs || 0;
+    subEl.textContent = `${photoCount} photo${photoCount !== 1 ? 's' : ''}${album.publishedDate ? ' · ' + new Date(album.publishedDate).toLocaleDateString() : ''}`;
+    const docs = photosRes.docs || [];
+    if (!docs.length) {
+      grid.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No photos in this album yet.<br><button class="btn btn-primary" style="margin-top:1rem" onclick="openAddPhotosModal()">+ Add Photos</button></div>';
+      return;
+    }
+    grid.innerHTML = `<div class="photo-grid">${docs.map(albumDetailPhotoCard).join('')}</div>`;
+  } catch(e) { grid.innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`; }
+}
+
+function albumDetailPhotoCard(p) {
+  const url = thumbUrl(p.image);
+  const cp = CAT_PILL[p.category] || 'px';
+  return `<div class="photo-item" style="position:relative">
+    <img src="${esc(url)}" alt="${esc(p.title)}" loading="lazy" onclick="editPhotoInAlbum('${p.id}')">
+    <div class="photo-ov" onclick="editPhotoInAlbum('${p.id}')">
+      <div class="photo-t">${esc(p.title)}</div>
+      <div class="photo-pills">
+        ${p.category ? `<span class="pill ${cp}">${p.category}</span>` : ''}
+        ${p.featured ? '<span class="pill pg">Featured</span>' : ''}
+      </div>
+    </div>
+    <button onclick="event.stopPropagation();removeFromAlbumAndRefresh('${p.id}')" title="Remove from album"
+      style="position:absolute;top:.4rem;right:.4rem;width:24px;height:24px;border-radius:50%;
+             background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.2);color:#f87171;
+             cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;
+             line-height:1;opacity:0;transition:opacity 180ms" class="rm-btn">×</button>
+  </div>`;
+}
+
+// Show remove button on hover via CSS injection
+const _adStyle = document.createElement('style');
+_adStyle.textContent = '.photo-item:hover .rm-btn{opacity:1!important}';
+document.head.appendChild(_adStyle);
+
+async function editPhotoInAlbum(id) {
+  try {
+    const p = await api(`/photos/${id}?depth=1`);
+    // after save in album-detail context, reload album detail
+    _afterSaveCallback = () => loadAlbumDetailData();
+    openPhotoModal(p);
+  } catch(e) { toast('Could not load photo: ' + e.message, 'error'); }
+}
+
+let _afterSaveCallback = null;
+
+async function removeFromAlbumAndRefresh(photoId) {
+  if (!confirm('Remove this photo from the album?')) return;
+  try {
+    await Promise.all([
+      api(`/photos/${photoId}`, { method: 'PATCH', body: JSON.stringify({ album: null }) }),
+      removePhotoFromAlbum(photoId, curAlbumDetailId),
+    ]);
+    toast('Removed from album', 'success');
+    loadAlbumDetailData();
+  } catch(e) { toast('Failed: ' + e.message, 'error'); }
+}
+
+// ─── ADD PHOTOS TO ALBUM MODAL ────────────────────────
+async function openAddPhotosModal() {
+  selectedAddPhotos = new Set();
+  document.getElementById('ap-search').value = '';
+  document.getElementById('ap-cat').value = '';
+  document.getElementById('ap-add-btn').disabled = true;
+  document.getElementById('ap-sel-lbl').textContent = '0 selected';
+  document.getElementById('ap-grid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>';
+  openM('add-photos-modal');
+  try {
+    // Load photos NOT already in this album
+    const res = await api(`/photos?where[album][not_equals]=${curAlbumDetailId}&limit=200&depth=1&sort=-createdAt`);
+    addablePhotos = res.docs || [];
+    renderAddablePhotos(addablePhotos);
+  } catch(e) { document.getElementById('ap-grid').innerHTML = `<div style="color:var(--t-s);font-size:.8rem;grid-column:1/-1">Error: ${esc(e.message)}</div>`; }
+}
+
+function renderAddablePhotos(photos) {
+  const el = document.getElementById('ap-grid');
+  if (!photos.length) { el.innerHTML = '<div style="color:var(--t-s);font-size:.8rem;grid-column:1/-1">No more photos to add</div>'; return; }
+  el.innerHTML = photos.map(p => {
+    const sel = selectedAddPhotos.has(p.id);
+    return `<div onclick="toggleAddPhoto('${p.id}',this)" style="position:relative;aspect-ratio:4/3;border-radius:var(--r-sm);overflow:hidden;cursor:pointer;outline:${sel?'2px solid var(--c-red)':'2px solid transparent'};transition:outline 150ms" data-pid="${p.id}">
+      <img src="${esc(thumbUrl(p.image))}" alt="${esc(p.title)}" style="width:100%;height:100%;object-fit:cover;display:block">
+      <div style="position:absolute;inset:0;background:${sel?'rgba(239,68,68,.25)':'transparent'};transition:background 150ms"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:.3rem .4rem;background:rgba(0,0,0,.7);font-size:.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.title)}</div>
+      ${sel ? '<div style="position:absolute;top:.3rem;right:.3rem;width:18px;height:18px;border-radius:50%;background:var(--c-red);display:flex;align-items:center;justify-content:center;font-size:.7rem">✓</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function filterAddablePhotos() {
+  const q   = document.getElementById('ap-search').value.toLowerCase();
+  const cat = document.getElementById('ap-cat').value;
+  renderAddablePhotos(addablePhotos.filter(p =>
+    (!q   || (p.title || '').toLowerCase().includes(q)) &&
+    (!cat || p.category === cat)
+  ));
+}
+
+function toggleAddPhoto(id, el) {
+  if (selectedAddPhotos.has(id)) { selectedAddPhotos.delete(id); }
+  else { selectedAddPhotos.add(id); }
+  const n = selectedAddPhotos.size;
+  document.getElementById('ap-sel-lbl').textContent = `${n} selected`;
+  document.getElementById('ap-add-btn').disabled = n === 0;
+  // re-render to update checkmarks
+  filterAddablePhotos();
+}
+
+async function addSelectedPhotosToAlbum() {
+  if (!selectedAddPhotos.size) return;
+  const btn = document.getElementById('ap-add-btn');
+  btn.disabled = true; btn.textContent = 'Adding…';
+  let added = 0;
+  for (const photoId of selectedAddPhotos) {
+    try {
+      await api(`/photos/${photoId}`, { method: 'PATCH', body: JSON.stringify({ album: curAlbumDetailId }) });
+      await syncPhotoToAlbum(photoId, curAlbumDetailId);
+      added++;
+    } catch(e) { toast('Failed to add a photo: ' + e.message, 'error'); }
+  }
+  btn.textContent = 'Add Selected';
+  closeM('add-photos-modal');
+  toast(`${added} photo${added !== 1 ? 's' : ''} added to album`, 'success');
+  loadAlbumDetailData();
 }
 
 // ─── INIT ─────────────────────────────────────────────
