@@ -23,6 +23,12 @@ export default buildConfig({
   ],
   admin: {
     user: 'users',
+    components: {
+      afterDashboard: [
+        '@/components/SiteStatsDashboard',
+        '@/components/PhotoUploadDashboard',
+      ],
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -215,6 +221,32 @@ export default buildConfig({
           name: 'publishedDate',
           type: 'date',
           admin: {
+            date: {
+              pickerAppearance: 'dayOnly',
+            },
+          },
+        },
+        {
+          name: 'location',
+          type: 'text',
+          admin: {
+            description: 'Where the photo was taken (e.g. Brands Hatch, UK)',
+          },
+        },
+        {
+          name: 'bike',
+          type: 'text',
+          label: 'The Bike',
+          admin: {
+            description: 'The motorcycle in the photo (e.g. Ducati Panigale V4)',
+          },
+        },
+        {
+          name: 'shotDate',
+          type: 'date',
+          label: 'Shot Date',
+          admin: {
+            description: 'When the photo was taken',
             date: {
               pickerAppearance: 'dayOnly',
             },

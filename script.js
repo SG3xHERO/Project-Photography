@@ -854,6 +854,31 @@
     $('#lightbox-title').text(title);
     $('#lightbox-description').text(description);
 
+    // ── Detail pills (location / shot date / bike) ──────────────────────────
+    function showPill(pillId, textId, value) {
+      if (value) {
+        $('#' + textId).text(value);
+        $('#' + pillId).show();
+      } else {
+        $('#' + pillId).hide();
+      }
+    }
+
+    showPill('pill-location', 'pill-location-text', photo.location || '');
+    showPill('pill-bike',     'pill-bike-text',     photo.bike     || '');
+
+    var dateDisplay = '';
+    if (photo.shotDate) {
+      try {
+        var d = new Date(photo.shotDate);
+        dateDisplay = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch (e) {
+        dateDisplay = photo.shotDate;
+      }
+    }
+    showPill('pill-date', 'pill-date-text', dateDisplay);
+    // ─────────────────────────────────────────────────────────────────────────
+
     if (currentAlbum) {
       $('#lightbox-album-context').show();
       $('#lightbox-album-name').text(currentAlbum.title || 'Album');
@@ -1019,9 +1044,44 @@
   }
 
   // ==========================================
+  // Dynamic Hero Stats from CMS
+  // ==========================================
+  async function loadHeroStats() {
+    try {
+      var photosRes = await fetch(API_BASE + '/photos?limit=0');
+      var albumsRes = await fetch(API_BASE + '/albums?limit=0');
+      if (!photosRes.ok || !albumsRes.ok) return;
+
+      var photosData = await photosRes.json();
+      var albumsData = await albumsRes.json();
+
+      var totalPhotos = photosData.totalDocs || 0;
+      var totalAlbums = albumsData.totalDocs || 0;
+
+      // Years active: calculate from earliest photo or use current year - 2021
+      var currentYear = new Date().getFullYear();
+      var yearsActive = currentYear - 2021;
+
+      // Update data-target attributes so counters animate to live values
+      if (totalPhotos > 0) {
+        $('[data-cms-stat="photos"]').attr('data-target', totalPhotos);
+      }
+      if (totalAlbums > 0) {
+        $('[data-cms-stat="albums"]').attr('data-target', totalAlbums);
+      }
+      if (yearsActive > 0) {
+        $('[data-cms-stat="years"]').attr('data-target', yearsActive);
+      }
+    } catch (e) {
+      // Keep fallback static values
+    }
+  }
+
+  // ==========================================
   // Init
   // ==========================================
   function init() {
+    loadHeroStats();
     loadSiteSettings();
     loadFeaturedPhotos();
     loadAlbums();

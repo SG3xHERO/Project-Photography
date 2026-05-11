@@ -210,17 +210,17 @@
           <!-- Stats -->
           <div class="hero-stats" id="hero-stats">
             <div class="hstat">
-              <div class="hstat-num"><span class="counter" data-target="100">0</span><span class="hstat-suffix">+</span></div>
+              <div class="hstat-num"><span class="counter" data-target="100" data-cms-stat="photos">0</span><span class="hstat-suffix">+</span></div>
               <span class="hstat-label">Photos</span>
             </div>
             <div class="hstat-divider" aria-hidden="true"></div>
             <div class="hstat">
-              <div class="hstat-num"><span class="counter" data-target="4">0</span><span class="hstat-suffix">+</span></div>
+              <div class="hstat-num"><span class="counter" data-target="4" data-cms-stat="albums">0</span><span class="hstat-suffix">+</span></div>
               <span class="hstat-label">Albums</span>
             </div>
             <div class="hstat-divider" aria-hidden="true"></div>
             <div class="hstat">
-              <div class="hstat-num"><span class="counter" data-target="4">0</span><span class="hstat-suffix">+</span></div>
+              <div class="hstat-num"><span class="counter" data-target="4" data-cms-stat="years">0</span><span class="hstat-suffix">+</span></div>
               <span class="hstat-label">Years</span>
             </div>
           </div>
@@ -506,6 +506,35 @@
             </div>
             <h3 id="lightbox-title"></h3>
             <p id="lightbox-description"></p>
+
+            <!-- Dynamic detail pills: auto-hidden when empty -->
+            <div class="photo-detail-pills" id="lightbox-details">
+              <span class="detail-pill" id="pill-location" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span id="pill-location-text"></span>
+              </span>
+              <span class="detail-pill" id="pill-date" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span id="pill-date-text"></span>
+              </span>
+              <span class="detail-pill" id="pill-bike" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <circle cx="5.5" cy="17.5" r="3.5"></circle>
+                  <circle cx="18.5" cy="17.5" r="3.5"></circle>
+                  <path d="M15 6a1 1 0 0 0-1 1v11h-3.5"></path>
+                  <path d="M6 17.5 L6 10 L10 7 L14 7"></path>
+                </svg>
+                <span id="pill-bike-text"></span>
+              </span>
+            </div>
           </div>
           <div class="lightbox-actions">
             <button id="lightbox-download-btn" class="lightbox-action-btn" onclick="downloadPhotoWithWatermark(this.dataset.imageUrl, this.dataset.title)" title="Download with watermark">
