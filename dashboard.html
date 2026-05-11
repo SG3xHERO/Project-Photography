@@ -296,7 +296,7 @@
     <div class="sb-footer">
       <div id="sb-user" style="font-size:.72rem;color:var(--t-s);margin-bottom:.75rem"></div>
       <div style="display:flex;flex-direction:column;gap:.4rem">
-        <a href="/cms-api/admin" target="_blank" class="btn btn-secondary btn-sm">
+        <a id="sb-admin-link" href="#" target="_blank" class="btn btn-secondary btn-sm">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
           Payload Admin
         </a>
@@ -564,9 +564,34 @@
 <div class="toasts" id="toasts"></div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────
-const CMS = '/cms-api';
-const API = CMS + '/api';
+// ─── CONFIG ──────────────────────────────────────────
+// Auto-detect CMS URL: photos.X.com → cms.X.com
+// Override by setting CMS_BASE_OVERRIDE before this script, e.g.:
+//   <script>window.CMS_BASE_OVERRIDE = 'https://cms.benfoggon.com';</script>
+const CMS_BASE = (() => {
+  if (window.CMS_BASE_OVERRIDE) return window.CMS_BASE_OVERRIDE.replace(/\/$/, '');
+  const h = window.location.hostname;
+  const m = h.match(/^photos\.(.+)$/);
+  if (m) return `https://cms.${m[1]}`;
+  // fallback: assume same host (for local dev or single-domain setups)
+  return window.location.origin;
+})();
+const API = CMS_BASE + '/api';
+
+document.addEventListener('DOMContentLoaded', () => {
+  const lnk = document.getElementById('sb-admin-link');
+  if (lnk) lnk.href = CMS_BASE + '/admin';
+});
+
+// ─── AUTH TOKEN ──────────────────────────────────────
+let authToken = sessionStorage.getItem('bf-cms-token') || '';
+
+function authHeaders(json = true) {
+  const h = {};
+  if (authToken) h['Authorization'] = `JWT ${authToken}`;
+  if (json) h['Content-Type'] = 'application/json';
+  return h;
+}
 
 // ─── UTILS ───────────────────────────────────────────
 function toast(msg, type = 'info') {
@@ -579,8 +604,8 @@ function toast(msg, type = 'info') {
 
 async function api(path, opts = {}) {
   const r = await fetch(API + path, {
-    ...opts, credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+    ...opts,
+    headers: { ...authHeaders(!opts._formData), ...(opts.headers || {}) },
   });
   if (r.status === 401) { showLogin(); throw new Error('Session expired'); }
   if (!r.ok) {
@@ -596,9 +621,9 @@ function esc(s) {
 
 function thumbUrl(img) {
   if (!img) return '';
-  if (typeof img === 'string') return CMS + '/media/' + img;
+  if (typeof img === 'string') return CMS_BASE + '/media/' + img;
   const raw = img.sizes?.thumbnail?.url || img.thumbnailURL || img.url || '';
-  if (raw) return raw.startsWith('/') ? CMS + raw : raw;
+  if (raw) return raw.startsWith('/') ? CMS_BASE + raw : raw;
   return img.id ? `${API}/media/file/${img.id}` : '';
 }
 
@@ -645,12 +670,14 @@ async function doLogin() {
   document.getElementById('lbt').textContent = 'Signing in…';
   try {
     const r = await fetch(API + '/users/login', {
-      method: 'POST', credentials: 'include',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password: pw }),
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.message || d.errors?.[0]?.message || 'Login failed');
+    authToken = d.token || '';
+    if (authToken) sessionStorage.setItem('bf-cms-token', authToken);
     showApp(d.user || { email });
   } catch (e) {
     errEl.textContent = e.message; errEl.style.display = 'block';
@@ -660,13 +687,17 @@ async function doLogin() {
 ['le','lp'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); }));
 
 async function doLogout() {
-  await fetch(API + '/users/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+  await fetch(API + '/users/logout', { method: 'POST', headers: authHeaders() }).catch(() => {});
+  authToken = ''; sessionStorage.removeItem('bf-cms-token');
   showLogin();
 }
 
 async function checkSession() {
-  try { const d = await api('/users/me'); if (d?.user) showApp(d.user); else showLogin(); }
-  catch { showLogin(); }
+  if (!authToken) { showLogin(); return; }
+  try {
+    const d = await api('/users/me');
+    if (d?.user) showApp(d.user); else { authToken = ''; sessionStorage.removeItem('bf-cms-token'); showLogin(); }
+  } catch { showLogin(); }
 }
 
 // ─── NAV ──────────────────────────────────────────────
@@ -933,7 +964,7 @@ async function uploadMedia(file) {
   const fd = new FormData();
   fd.append('file', file);
   fd.append('alt', file.name.replace(/\.[^.]+$/, ''));
-  const r = await fetch(API + '/media', { method: 'POST', credentials: 'include', body: fd });
+  const r = await fetch(API + '/media', { method: 'POST', headers: authHeaders(false), body: fd });
   if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.message || `HTTP ${r.status}`); }
   const d = await r.json();
   return d.doc?.id || d.id;
@@ -1006,7 +1037,7 @@ async function startUpload(files) {
   files.forEach(f => fd.append('files', f));
   try {
     bar.style.width = '40%'; pct.textContent = '40%';
-    const r = await fetch(API + '/bulk-upload', { method: 'POST', credentials: 'include', body: fd });
+    const r = await fetch(API + '/bulk-upload', { method: 'POST', headers: authHeaders(false), body: fd });
     bar.style.width = '80%'; pct.textContent = '80%';
     if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || `HTTP ${r.status}`); }
     const data = await r.json();
