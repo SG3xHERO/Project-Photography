@@ -860,6 +860,7 @@
                      && photo.image.height && photo.image.width
                      && photo.image.height > photo.image.width;
     $('#lightbox-image').toggleClass('portrait-img', !!isPortrait);
+    $('.lightbox-content').toggleClass('portrait-mode', !!isPortrait);
 
     var title       = photo.title || 'Untitled';
     var description = photo.description || '';

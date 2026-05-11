@@ -619,7 +619,7 @@
 // ─── CONFIG ──────────────────────────────────────────
 // Auto-detect CMS URL: photos.X.com → cms.X.com
 // Override by setting CMS_BASE_OVERRIDE before this script, e.g.:
-//   <script>window.CMS_BASE_OVERRIDE = 'https://cms.benfoggon.com';</script>
+//   <script>window.CMS_BASE_OVERRIDE = 'https://cms.benfoggon.com';<\/script>
 const CMS_BASE = (() => {
   if (window.CMS_BASE_OVERRIDE) return window.CMS_BASE_OVERRIDE.replace(/\/$/, '');
   const h = window.location.hostname;
