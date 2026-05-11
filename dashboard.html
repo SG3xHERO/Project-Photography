@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BF Photography — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-bg:       #06060f;
+      --c-surface:  #0e0e1c;
+      --c-s2:       #161626;
+      --c-s3:       #1e1e30;
+      --c-border:   rgba(255,255,255,0.07);
+      --c-borderh:  rgba(255,255,255,0.14);
+      --c-red:      #ef4444;
+      --c-orange:   #f97316;
+      --c-green:    #10b981;
+      --c-amber:    #f59e0b;
+      --g-pr:       linear-gradient(135deg,#ef4444,#f97316);
+      --t-p:        #ffffff;
+      --t-m:        rgba(255,255,255,0.7);
+      --t-s:        rgba(255,255,255,0.45);
+      --ff:         'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      --fh:         'Poppins',var(--ff);
+      --r-sm:6px; --r-md:12px; --r-lg:16px; --r-xl:24px;
+      --shadow:     0 8px 32px rgba(0,0,0,0.45);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:var(--ff);background:var(--c-bg);color:var(--t-p);-webkit-font-smoothing:antialiased}
+
+    /* ─── LOGIN ─── */
+    #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(ellipse at 20% 50%,rgba(239,68,68,.08),transparent 60%),
+                 radial-gradient(ellipse at 80% 50%,rgba(249,115,22,.08),transparent 60%),var(--c-bg)}
+    .login-card{width:100%;max-width:400px;padding:2.5rem;background:var(--c-surface);
+      border:1px solid var(--c-border);border-radius:var(--r-xl);box-shadow:var(--shadow)}
+    .login-logo{font-family:var(--fh);font-size:1.6rem;font-weight:800;
+      background:var(--g-pr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.2rem}
+    .login-sub{color:var(--t-s);font-size:.82rem;margin-bottom:2rem}
+
+    /* ─── APP SHELL ─── */
+    #app{display:none;height:100vh;overflow:hidden}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--c-surface);
+      border-right:1px solid var(--c-border);display:flex;flex-direction:column;padding:1.5rem 0;z-index:100}
+    .sb-brand{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--c-border);margin-bottom:.75rem}
+    .sb-logo{font-family:var(--fh);font-size:1.05rem;font-weight:700;
+      background:var(--g-pr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .sb-tag{font-size:.68rem;color:var(--t-s);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+    .nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.5rem;color:var(--t-m);
+      font-size:.875rem;font-weight:500;cursor:pointer;transition:all 180ms;
+      border-left:2px solid transparent;user-select:none}
+    .nav-item:hover{color:var(--t-p);background:rgba(255,255,255,.04)}
+    .nav-item.active{color:var(--t-p);background:rgba(239,68,68,.1);border-left-color:var(--c-red)}
+    .nav-item svg{width:17px;height:17px;flex-shrink:0;opacity:.8}
+    .sb-footer{margin-top:auto;padding:1rem 1.5rem;border-top:1px solid var(--c-border)}
+    .main{margin-left:240px;height:100vh;overflow-y:auto;padding:2rem 2.25rem}
+
+    /* ─── SECTIONS ─── */
+    .section{display:none}.section.active{display:block}
+
+    /* ─── COMMON ─── */
+    .page-title{font-family:var(--fh);font-size:1.7rem;font-weight:700;margin-bottom:.2rem}
+    .page-sub{color:var(--t-s);font-size:.875rem;margin-bottom:1.75rem}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.75rem}
+    .stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);
+      padding:1.25rem 1.5rem;transition:border-color 200ms}
+    .stat-card:hover{border-color:var(--c-borderh)}
+    .stat-lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--t-s);margin-bottom:.5rem}
+    .stat-val{font-family:var(--fh);font-size:2rem;font-weight:700;
+      background:var(--g-pr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);
+      padding:1.5rem;margin-bottom:1.5rem}
+    .card-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--t-s);margin-bottom:1rem}
+
+    /* forms */
+    .form-group{margin-bottom:.875rem}
+    .form-label{display:block;font-size:.75rem;font-weight:500;color:var(--t-m);margin-bottom:.35rem;
+      text-transform:uppercase;letter-spacing:.05em}
+    .form-input,.form-select,.form-textarea{width:100%;padding:.6rem .875rem;background:var(--c-s2);
+      border:1px solid var(--c-border);border-radius:var(--r-md);color:var(--t-p);
+      font-family:var(--ff);font-size:.875rem;outline:none;transition:border-color 200ms}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--c-red)}
+    .form-select option{background:var(--c-s2)}
+    .form-textarea{resize:vertical;min-height:80px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    .cb-row{display:flex;align-items:center;gap:.5rem;margin:.5rem 0}
+    .cb-row input[type=checkbox]{accent-color:var(--c-red);width:15px;height:15px}
+    .cb-row label{font-size:.8rem;color:var(--t-m)}
+
+    /* buttons */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+      padding:.6rem 1.2rem;border-radius:var(--r-md);font-family:var(--ff);font-size:.875rem;
+      font-weight:600;cursor:pointer;border:none;transition:all 180ms;white-space:nowrap;text-decoration:none}
+    .btn-primary{background:var(--g-pr);color:#fff}
+    .btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+    .btn-secondary{background:var(--c-s2);color:var(--t-m);border:1px solid var(--c-border)}
+    .btn-secondary:hover{color:var(--t-p);border-color:var(--c-borderh)}
+    .btn-danger{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.22)}
+    .btn-danger:hover{background:rgba(239,68,68,.22)}
+    .btn-sm{padding:.35rem .7rem;font-size:.78rem}
+    .btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+
+    /* pills */
+    .pill{display:inline-flex;align-items:center;padding:.18rem .55rem;border-radius:9999px;
+      font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+    .pr{background:rgba(239,68,68,.15);color:#f87171}
+    .po{background:rgba(249,115,22,.15);color:#fb923c}
+    .pg{background:rgba(16,185,129,.15);color:#34d399}
+    .pb{background:rgba(59,130,246,.15);color:#60a5fa}
+    .pv{background:rgba(167,139,250,.15);color:#a78bfa}
+    .px{background:rgba(255,255,255,.08);color:var(--t-m)}
+
+    /* ─── UPLOAD ─── */
+    .drop-zone{border:2px dashed var(--c-border);border-radius:var(--r-xl);padding:3rem 2rem;
+      text-align:center;transition:all 250ms;cursor:pointer;position:relative;background:var(--c-surface)}
+    .drop-zone.dragover{border-color:var(--c-red);background:rgba(239,68,68,.05)}
+    .drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .drop-icon{width:48px;height:48px;margin:0 auto 1rem;opacity:.35}
+    .prog-wrap{background:var(--c-s2);border-radius:9999px;height:6px;overflow:hidden;margin-top:.5rem}
+    .prog-bar{height:100%;background:var(--g-pr);border-radius:9999px;transition:width 300ms;width:0%}
+
+    .apply-bar{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);
+      padding:1rem 1.25rem;display:flex;align-items:flex-end;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
+    .apply-bar .form-group{margin-bottom:0;flex:1;min-width:155px}
+
+    .tag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1rem;margin-top:.75rem}
+    .tag-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);overflow:hidden}
+    .tag-card.saved{border-color:rgba(16,185,129,.4)}
+    .tag-card-img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block}
+    .tag-card-body{padding:1rem}
+    .tag-card-fields{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+    .tag-card-fields .form-group{margin-bottom:0}
+    .tcf-full{grid-column:1/-1}
+
+    /* stage dots */
+    .stage-dot{display:flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:600}
+    .stage-dot .dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-size:.68rem;flex-shrink:0}
+    .dot-on{background:var(--g-pr)}
+    .dot-off{background:var(--c-s2);border:1px solid var(--c-border);opacity:.4}
+
+    /* ─── PHOTOS ─── */
+    .tb{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:1.5rem}
+    .tb .form-input{width:auto;flex:1;min-width:200px}
+    .tb .form-select{width:auto;min-width:130px}
+    .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.7rem}
+    .photo-item{position:relative;border-radius:var(--r-md);overflow:hidden;aspect-ratio:4/3;
+      background:var(--c-surface);cursor:pointer}
+    .photo-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 350ms}
+    .photo-item:hover img{transform:scale(1.05)}
+    .photo-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85),transparent 55%);
+      opacity:0;transition:opacity 180ms;display:flex;flex-direction:column;justify-content:flex-end;padding:.7rem}
+    .photo-item:hover .photo-ov{opacity:1}
+    .photo-t{font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.35rem}
+    .photo-pills{display:flex;gap:.3rem;flex-wrap:wrap}
+
+    /* ─── ALBUMS ─── */
+    .album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem}
+    .album-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);
+      overflow:hidden;transition:border-color 200ms}
+    .album-card:hover{border-color:var(--c-borderh)}
+    .album-cover{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--c-s2)}
+    .album-info{padding:1rem}
+    .album-title{font-weight:600;font-size:.9rem;margin-bottom:.2rem}
+    .album-meta{font-size:.72rem;color:var(--t-s);margin-bottom:.75rem}
+    .album-acts{display:flex;gap:.5rem}
+
+    /* ─── MODAL ─── */
+    .modal-bd{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);
+      z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;
+      opacity:0;pointer-events:none;transition:opacity 200ms}
+    .modal-bd.open{opacity:1;pointer-events:all}
+    .modal{width:100%;max-width:560px;background:var(--c-surface);border:1px solid var(--c-border);
+      border-radius:var(--r-xl);padding:2rem;max-height:90vh;overflow-y:auto;
+      transform:translateY(20px);transition:transform 200ms}
+    .modal-bd.open .modal{transform:translateY(0)}
+    .modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+    .modal-title{font-family:var(--fh);font-size:1.2rem;font-weight:700}
+    .modal-x{width:32px;height:32px;border-radius:50%;background:var(--c-s2);border:1px solid var(--c-border);
+      color:var(--t-m);cursor:pointer;display:flex;align-items:center;justify-content:center;
+      font-size:1.2rem;transition:all 180ms;font-family:sans-serif}
+    .modal-x:hover{color:var(--t-p);background:var(--c-s3)}
+
+    /* ─── TOASTS ─── */
+    .toasts{position:fixed;bottom:1.5rem;right:1.5rem;z-index:300;display:flex;flex-direction:column;gap:.5rem}
+    .toast{padding:.7rem 1rem;border-radius:var(--r-md);font-size:.85rem;font-weight:500;
+      animation:slideIn 200ms ease-out;max-width:320px}
+    .t-ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#34d399}
+    .t-err{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171}
+    .t-info{background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.3);color:#fb923c}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    /* ─── MISC ─── */
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--c-red);
+      border-radius:50%;animation:spin .6s linear infinite;display:inline-block;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading{display:flex;align-items:center;justify-content:center;gap:.75rem;
+      padding:3rem;color:var(--t-s);font-size:.875rem}
+    .empty{text-align:center;padding:4rem 2rem;color:var(--t-s)}
+    .empty-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.45}
+    .divider{height:1px;background:var(--c-border);margin:1.25rem 0}
+
+    /* category bars */
+    .cat-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.4rem}
+    .cat-name{font-size:.78rem;color:var(--t-m);width:88px;flex-shrink:0;text-transform:capitalize}
+    .cat-bg{height:4px;background:var(--c-s3);border-radius:9999px;flex:1;overflow:hidden}
+    .cat-fill{height:100%;background:var(--g-pr);border-radius:9999px}
+    .cat-n{font-size:.72rem;color:var(--t-s);width:24px;text-align:right;flex-shrink:0}
+
+    /* recent thumbnails */
+    .recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem;margin-top:.75rem}
+    .recent-thumb{aspect-ratio:4/3;border-radius:var(--r-sm);object-fit:cover;width:100%;
+      background:var(--c-s2);cursor:pointer;transition:opacity 200ms}
+    .recent-thumb:hover{opacity:.8}
+
+    /* pagination */
+    .pagination{display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem;align-items:center}
+
+    /* ─── MOBILE ─── */
+    .mob-hd{display:none}
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%);transition:transform 200ms;z-index:200}
+      .sidebar.open{transform:translateX(0)}
+      .main{margin-left:0;padding:1rem;padding-top:64px}
+      .mob-hd{display:flex;position:fixed;top:0;left:0;right:0;height:56px;background:var(--c-surface);
+        border-bottom:1px solid var(--c-border);align-items:center;padding:0 1rem;z-index:150;gap:1rem}
+      .ham{width:36px;height:36px;background:none;border:none;color:var(--t-p);cursor:pointer;
+        display:flex;flex-direction:column;justify-content:center;gap:5px}
+      .ham span{display:block;height:2px;width:22px;background:currentColor;border-radius:1px}
+      .form-row,.tag-card-fields{grid-template-columns:1fr}
+      .overview-2col{grid-template-columns:1fr!important}
+    }
+
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">BF Photography</div>
+    <div class="login-sub">Dashboard — sign in to continue</div>
+    <div class="form-group">
+      <label class="form-label" for="le">Email</label>
+      <input class="form-input" type="email" id="le" placeholder="admin@example.com" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="lp">Password</label>
+      <input class="form-input" type="password" id="lp" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div id="lerr" style="color:#f87171;font-size:.8rem;margin-bottom:.75rem;display:none"></div>
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()" style="width:100%">
+      <span id="lbt">Sign In</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app">
+  <!-- mobile header -->
+  <div class="mob-hd">
+    <button class="ham" onclick="toggleSB()"><span></span><span></span><span></span></button>
+    <span style="font-family:var(--fh);font-size:.9rem;font-weight:700;background:var(--g-pr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">BF Photography</span>
+  </div>
+
+  <!-- sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">BF Photography</div>
+      <div class="sb-tag">Dashboard</div>
+    </div>
+    <nav>
+      <div class="nav-item active" data-s="overview" onclick="nav('overview')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" data-s="upload" onclick="nav('upload')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        Upload
+      </div>
+      <div class="nav-item" data-s="photos" onclick="nav('photos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Photos
+      </div>
+      <div class="nav-item" data-s="albums" onclick="nav('albums')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Albums
+      </div>
+    </nav>
+    <div class="sb-footer">
+      <div id="sb-user" style="font-size:.72rem;color:var(--t-s);margin-bottom:.75rem"></div>
+      <div style="display:flex;flex-direction:column;gap:.4rem">
+        <a href="/cms-api/admin" target="_blank" class="btn btn-secondary btn-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          Payload Admin
+        </a>
+        <a href="/" target="_blank" class="btn btn-secondary btn-sm">View Site ↗</a>
+        <button class="btn btn-secondary btn-sm" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+  </aside>
+  <div id="sb-ov" onclick="toggleSB()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190;backdrop-filter:blur(2px)"></div>
+
+  <main class="main">
+
+    <!-- ═══ OVERVIEW ═══ -->
+    <section class="section active" id="section-overview">
+      <div class="page-title">Overview</div>
+      <div class="page-sub">Your photography library at a glance</div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-lbl">Total Photos</div><div class="stat-val" id="sv-photos">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Albums</div><div class="stat-val" id="sv-albums">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Featured</div><div class="stat-val" id="sv-feat">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Media Files</div><div class="stat-val" id="sv-media">—</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem" class="overview-2col">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Categories</div>
+          <div id="cat-bars"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:.5rem">
+            <button class="btn btn-primary" onclick="nav('upload')">Upload Photos</button>
+            <button class="btn btn-secondary" onclick="nav('photos')">Manage Photos</button>
+            <button class="btn btn-secondary" onclick="nav('albums')">Manage Albums</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recent Uploads</div>
+        <div class="recent-grid" id="recent-grid"><div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div></div>
+      </div>
+    </section>
+
+    <!-- ═══ UPLOAD ═══ -->
+    <section class="section" id="section-upload">
+      <div class="page-title">Upload Photos</div>
+      <div class="page-sub">Drop images or a .zip — then tag before saving</div>
+
+      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;align-items:center" id="stages">
+        <div class="stage-dot"><span class="dot dot-on" id="d1">1</span>Upload</div>
+        <div style="flex:1;height:1px;background:var(--c-border);max-width:60px"></div>
+        <div class="stage-dot" style="opacity:.35" id="sd2"><span class="dot dot-off" id="d2">2</span>Tag</div>
+        <div style="flex:1;height:1px;background:var(--c-border);max-width:60px"></div>
+        <div class="stage-dot" style="opacity:.35" id="sd3"><span class="dot dot-off" id="d3">3</span>Done</div>
+      </div>
+
+      <!-- stage 1 -->
+      <div id="us1">
+        <div class="drop-zone" id="drop-zone"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="handleDrop(event)">
+          <input type="file" id="file-input" accept="image/*,.zip" multiple onchange="handleFiles(event)">
+          <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+          </svg>
+          <div style="font-size:1rem;font-weight:600;margin-bottom:.3rem">Drop photos here</div>
+          <div style="font-size:.8rem;color:var(--t-s)">JPG · PNG · WEBP · HEIC · AVIF · GIF or a .zip of images</div>
+        </div>
+        <div id="up-prog" style="display:none;margin-top:1.25rem">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--t-m)">
+            <span id="up-lbl">Uploading…</span><span id="up-pct">0%</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+        </div>
+      </div>
+
+      <!-- stage 2 -->
+      <div id="us2" style="display:none">
+        <div class="apply-bar">
+          <div class="form-group"><label class="form-label">Album → All</label><select class="form-select" id="apply-album"><option value="">— none —</option></select></div>
+          <div class="form-group"><label class="form-label">Location → All</label><input class="form-input" type="text" id="apply-loc" placeholder="e.g. Brands Hatch"></div>
+          <div class="form-group"><label class="form-label">Category → All</label><select class="form-select" id="apply-cat"><option value="">— pick —</option></select></div>
+          <button class="btn btn-secondary btn-sm" style="align-self:flex-end;flex-shrink:0" onclick="applyAll()">Apply to All</button>
+        </div>
+        <div class="tag-grid" id="tag-grid"></div>
+        <div style="display:flex;gap:.75rem;margin-top:1.5rem;justify-content:flex-end">
+          <button class="btn btn-secondary" onclick="resetUpload()">Cancel</button>
+          <button class="btn btn-primary" id="save-all-btn" onclick="saveAll()"><span id="sa-txt">Save All Photos</span></button>
+        </div>
+      </div>
+
+      <!-- stage 3 -->
+      <div id="us3" style="display:none;text-align:center;padding:4rem 2rem">
+        <div style="font-size:3rem;margin-bottom:.75rem;background:var(--g-pr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">✓</div>
+        <div style="font-family:var(--fh);font-size:1.5rem;font-weight:700;margin-bottom:.5rem" id="done-h">Photos saved!</div>
+        <div style="color:var(--t-s);margin-bottom:2rem" id="done-s">All photos added to your library.</div>
+        <div style="display:flex;gap:1rem;justify-content:center">
+          <button class="btn btn-secondary" onclick="resetUpload()">Upload More</button>
+          <button class="btn btn-primary" onclick="nav('photos')">View Photos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PHOTOS ═══ -->
+    <section class="section" id="section-photos">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.2rem">
+        <div class="page-title">Photos</div>
+        <span id="ph-count-lbl" style="font-size:.8rem;color:var(--t-s)"></span>
+      </div>
+      <div class="page-sub">Browse, search, and manage your photo library</div>
+      <div class="tb">
+        <input class="form-input" type="search" id="ph-search" placeholder="Search photos…" oninput="debSearch()">
+        <select class="form-select" id="ph-cat" onchange="loadPhotos()">
+          <option value="">All Categories</option>
+          <option value="racing">Racing</option><option value="custom">Custom</option>
+          <option value="adventure">Adventure</option><option value="detail">Detail</option>
+          <option value="vintage">Vintage</option><option value="street">Street</option>
+          <option value="portrait">Portrait</option><option value="landscape">Landscape</option>
+          <option value="other">Other</option>
+        </select>
+        <select class="form-select" id="ph-album" onchange="loadPhotos()"><option value="">All Albums</option></select>
+        <select class="form-select" id="ph-feat" onchange="loadPhotos()">
+          <option value="">All</option><option value="true">Featured only</option>
+        </select>
+      </div>
+      <div id="ph-grid"></div>
+      <div class="pagination" id="ph-pages"></div>
+    </section>
+
+    <!-- ═══ ALBUMS ═══ -->
+    <section class="section" id="section-albums">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.2rem">
+        <div class="page-title">Albums</div>
+        <button class="btn btn-primary btn-sm" onclick="openAlbumModal()">+ New Album</button>
+      </div>
+      <div class="page-sub">Organise your photos into collections</div>
+      <div id="al-grid"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══ PHOTO EDIT MODAL ═══ -->
+<div class="modal-bd" id="photo-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-hd">
+      <div class="modal-title">Edit Photo</div>
+      <button class="modal-x" onclick="closeM('photo-modal')">×</button>
+    </div>
+    <div style="display:flex;gap:1rem;margin-bottom:1.25rem">
+      <img id="pm-prev" src="" alt="" style="width:120px;height:90px;object-fit:cover;border-radius:var(--r-md);flex-shrink:0;background:var(--c-s2)">
+      <div style="flex:1">
+        <div class="form-group" style="margin-bottom:.5rem">
+          <label class="form-label">Title *</label>
+          <input class="form-input" id="pm-title" type="text" placeholder="Photo title">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Description</label>
+          <input class="form-input" id="pm-desc" type="text" placeholder="Optional description">
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="pm-cat">
+          <option value="">— none —</option>
+          <option value="racing">Racing</option><option value="custom">Custom</option>
+          <option value="adventure">Adventure</option><option value="detail">Detail</option>
+          <option value="vintage">Vintage</option><option value="street">Street</option>
+          <option value="portrait">Portrait</option><option value="landscape">Landscape</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Album</label>
+        <select class="form-select" id="pm-album"><option value="">— none —</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input class="form-input" id="pm-loc" type="text" placeholder="e.g. Brands Hatch, UK">
+      </div>
+      <div class="form-group">
+        <label class="form-label">The Bike</label>
+        <input class="form-input" id="pm-bike" type="text" placeholder="e.g. Ducati Panigale V4">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Shot Date</label>
+        <input class="form-input" id="pm-shotdate" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Camera</label>
+        <input class="form-input" id="pm-camera" type="text" placeholder="e.g. Sony A7 IV">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Lens &amp; Settings</label>
+      <input class="form-input" id="pm-lens" type="text" placeholder="e.g. 70-200mm f/2.8 · ISO 400 · 1/1000s f/4">
+    </div>
+    <div class="cb-row" style="margin-bottom:1.25rem">
+      <input type="checkbox" id="pm-feat">
+      <label for="pm-feat">Featured on homepage</label>
+    </div>
+    <div style="display:flex;gap:.75rem;justify-content:flex-end">
+      <button class="btn btn-danger btn-sm" onclick="deletePhotoM()">Delete</button>
+      <button class="btn btn-secondary" onclick="closeM('photo-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePhotoM()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ALBUM MODAL ═══ -->
+<div class="modal-bd" id="album-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="am-title-h">New Album</div>
+      <button class="modal-x" onclick="closeM('album-modal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input class="form-input" id="am-title" type="text" placeholder="Album title">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Slug *</label>
+        <input class="form-input" id="am-slug" type="text" placeholder="url-friendly-slug">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Published Date</label>
+        <input class="form-input" id="am-date" type="date">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="am-desc" placeholder="Optional description"></textarea>
+    </div>
+    <div class="cb-row" style="margin-bottom:1.25rem">
+      <input type="checkbox" id="am-feat">
+      <label for="am-feat">Featured on homepage</label>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cover Image</label>
+      <input type="file" id="am-cover" accept="image/*" class="form-input" style="padding:.4rem">
+    </div>
+    <div id="am-cover-prev" style="display:none;margin-bottom:1rem">
+      <img id="am-cover-img" src="" alt="" style="width:100%;max-height:150px;object-fit:cover;border-radius:var(--r-md)">
+    </div>
+    <div style="display:flex;gap:.75rem;justify-content:flex-end">
+      <button class="btn btn-danger btn-sm" id="am-del-btn" onclick="deleteAlbumM()" style="display:none">Delete</button>
+      <button class="btn btn-secondary" onclick="closeM('album-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAlbumM()">Save Album</button>
+    </div>
+  </div>
+</div>
+
+<!-- toasts -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────
+const CMS = '/cms-api';
+const API = CMS + '/api';
+
+// ─── UTILS ───────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast t-${type === 'success' ? 'ok' : type === 'error' ? 'err' : 'info'}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, {
+    ...opts, credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+  });
+  if (r.status === 401) { showLogin(); throw new Error('Session expired'); }
+  if (!r.ok) {
+    const j = await r.json().catch(() => ({}));
+    throw new Error(j.message || j.errors?.[0]?.message || `HTTP ${r.status}`);
+  }
+  return r.json();
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function thumbUrl(img) {
+  if (!img) return '';
+  if (typeof img === 'string') return CMS + '/media/' + img;
+  const raw = img.sizes?.thumbnail?.url || img.thumbnailURL || img.url || '';
+  if (raw) return raw.startsWith('/') ? CMS + raw : raw;
+  return img.id ? `${API}/media/file/${img.id}` : '';
+}
+
+function cleanFilename(n) {
+  return n.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function openM(id) { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-bd').forEach(b => {
+  b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-bd.open').forEach(m => m.classList.remove('open'));
+});
+
+let srchT;
+function debSearch() { clearTimeout(srchT); srchT = setTimeout(loadPhotos, 350); }
+
+function toggleSB() {
+  const s = document.getElementById('sidebar'), ov = document.getElementById('sb-ov');
+  const o = s.classList.toggle('open'); ov.style.display = o ? 'block' : 'none';
+}
+
+// ─── AUTH ─────────────────────────────────────────────
+function showLogin() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+function showApp(user) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('sb-user').textContent = user.email || user.name || '';
+  loadOverview(); loadAlbumLists();
+}
+
+async function doLogin() {
+  const email = document.getElementById('le').value.trim();
+  const pw = document.getElementById('lp').value;
+  const errEl = document.getElementById('lerr');
+  const btn = document.getElementById('login-btn');
+  errEl.style.display = 'none'; btn.disabled = true;
+  document.getElementById('lbt').textContent = 'Signing in…';
+  try {
+    const r = await fetch(API + '/users/login', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pw }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message || d.errors?.[0]?.message || 'Login failed');
+    showApp(d.user || { email });
+  } catch (e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+    btn.disabled = false; document.getElementById('lbt').textContent = 'Sign In';
+  }
+}
+['le','lp'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); }));
+
+async function doLogout() {
+  await fetch(API + '/users/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+  showLogin();
+}
+
+async function checkSession() {
+  try { const d = await api('/users/me'); if (d?.user) showApp(d.user); else showLogin(); }
+  catch { showLogin(); }
+}
+
+// ─── NAV ──────────────────────────────────────────────
+function nav(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  document.querySelector(`.nav-item[data-s="${name}"]`).classList.add('active');
+  if (name === 'photos') loadPhotos();
+  if (name === 'albums') loadAlbums();
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-ov').style.display = 'none';
+}
+
+// ─── OVERVIEW ─────────────────────────────────────────
+async function loadOverview() {
+  try {
+    const [ph, al, ft, md] = await Promise.all([
+      api('/photos?limit=0&depth=0'),
+      api('/albums?limit=0&depth=0'),
+      api('/photos?where[featured][equals]=true&limit=0&depth=0'),
+      api('/media?limit=0&depth=0'),
+    ]);
+    document.getElementById('sv-photos').textContent = ph.totalDocs ?? '—';
+    document.getElementById('sv-albums').textContent = al.totalDocs ?? '—';
+    document.getElementById('sv-feat').textContent   = ft.totalDocs ?? '—';
+    document.getElementById('sv-media').textContent  = md.totalDocs ?? '—';
+    loadCatBars(); loadRecent();
+  } catch(e) { toast('Stats error: ' + e.message, 'error'); }
+}
+
+const CATS = ['racing','custom','adventure','detail','vintage','street','portrait','landscape','other'];
+
+async function loadCatBars() {
+  const el = document.getElementById('cat-bars');
+  try {
+    const counts = await Promise.all(
+      CATS.map(c => api(`/photos?where[category][equals]=${c}&limit=0&depth=0`).then(r => r.totalDocs || 0))
+    );
+    const max = Math.max(...counts, 1);
+    el.innerHTML = counts.map((n, i) => n > 0 ? `
+      <div class="cat-row">
+        <span class="cat-name">${CATS[i]}</span>
+        <div class="cat-bg"><div class="cat-fill" style="width:${(n/max*100).toFixed(0)}%"></div></div>
+        <span class="cat-n">${n}</span>
+      </div>` : '').join('') || '<span style="color:var(--t-s);font-size:.8rem">No photos yet</span>';
+  } catch { el.innerHTML = '<span style="color:var(--t-s);font-size:.8rem">Unavailable</span>'; }
+}
+
+async function loadRecent() {
+  const el = document.getElementById('recent-grid');
+  try {
+    const res = await api('/photos?limit=12&sort=-createdAt&depth=1');
+    const docs = res.docs || [];
+    if (!docs.length) { el.innerHTML = '<span style="color:var(--t-s);font-size:.8rem;grid-column:1/-1">No photos yet</span>'; return; }
+    el.innerHTML = docs.map(p =>
+      `<img class="recent-thumb" src="${esc(thumbUrl(p.image))}" alt="${esc(p.title)}" title="${esc(p.title)}" onclick="editPhoto('${p.id}')">`
+    ).join('');
+  } catch { el.innerHTML = '<span style="color:var(--t-s);font-size:.8rem;grid-column:1/-1">Unavailable</span>'; }
+}
+
+// ─── ALBUM DROPDOWN LISTS ─────────────────────────────
+let albumList = [];
+
+async function loadAlbumLists() {
+  try {
+    const res = await api('/albums?limit=200&depth=0');
+    albumList = res.docs || [];
+    const opts = '<option value="">— none —</option>' +
+      albumList.map(a => `<option value="${a.id}">${esc(a.title)}</option>`).join('');
+    ['pm-album','apply-album'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = opts; });
+    const pf = document.getElementById('ph-album');
+    if (pf) pf.innerHTML = '<option value="">All Albums</option>' +
+      albumList.map(a => `<option value="${a.id}">${esc(a.title)}</option>`).join('');
+  } catch {}
+}
+
+// ─── PHOTOS ───────────────────────────────────────────
+let phPage = 1;
+
+async function loadPhotos(page = 1) {
+  phPage = page;
+  const q = document.getElementById('ph-search').value.trim();
+  const cat = document.getElementById('ph-cat').value;
+  const alb = document.getElementById('ph-album').value;
+  const ft  = document.getElementById('ph-feat').value;
+  let qs = `?limit=30&page=${page}&depth=1&sort=-createdAt`;
+  if (q)   qs += `&where[title][contains]=${encodeURIComponent(q)}`;
+  if (cat) qs += `&where[category][equals]=${cat}`;
+  if (alb) qs += `&where[album][equals]=${alb}`;
+  if (ft)  qs += `&where[featured][equals]=${ft}`;
+
+  const el = document.getElementById('ph-grid');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading…</div>';
+  try {
+    const res = await api('/photos' + qs);
+    const docs = res.docs || [];
+    document.getElementById('ph-count-lbl').textContent = (res.totalDocs || 0) + ' photos';
+    if (!docs.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No photos found</div>'; document.getElementById('ph-pages').innerHTML = ''; return; }
+    el.innerHTML = `<div class="photo-grid">${docs.map(photoCard).join('')}</div>`;
+    renderPager(res);
+  } catch(e) { el.innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`; }
+}
+
+const CAT_PILL = { racing:'pr', custom:'po', adventure:'pg', detail:'pb', vintage:'pv' };
+function photoCard(p) {
+  const url = thumbUrl(p.image);
+  const cp = CAT_PILL[p.category] || 'px';
+  return `<div class="photo-item" onclick="editPhoto('${p.id}')">
+    <img src="${esc(url)}" alt="${esc(p.title)}" loading="lazy">
+    <div class="photo-ov">
+      <div class="photo-t">${esc(p.title)}</div>
+      <div class="photo-pills">
+        ${p.category ? `<span class="pill ${cp}">${p.category}</span>` : ''}
+        ${p.featured ? '<span class="pill pg">Featured</span>' : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPager(res) {
+  const el = document.getElementById('ph-pages'), t = res.totalPages || 1, c = res.page || 1;
+  if (t <= 1) { el.innerHTML = ''; return; }
+  let h = '';
+  if (c > 1) h += `<button class="btn btn-secondary btn-sm" onclick="loadPhotos(${c-1})">← Prev</button>`;
+  h += `<span style="font-size:.78rem;color:var(--t-s);padding:0 .5rem">Page ${c} of ${t}</span>`;
+  if (c < t) h += `<button class="btn btn-secondary btn-sm" onclick="loadPhotos(${c+1})">Next →</button>`;
+  el.innerHTML = h;
+}
+
+// ─── PHOTO MODAL ──────────────────────────────────────
+let curPhotoId = null;
+
+async function editPhoto(id) {
+  try { const p = await api(`/photos/${id}?depth=1`); openPhotoModal(p); }
+  catch(e) { toast('Could not load photo: ' + e.message, 'error'); }
+}
+
+function openPhotoModal(p) {
+  curPhotoId = p.id;
+  document.getElementById('pm-prev').src = thumbUrl(p.image);
+  document.getElementById('pm-title').value    = p.title || '';
+  document.getElementById('pm-desc').value     = p.description || '';
+  document.getElementById('pm-cat').value      = p.category || '';
+  document.getElementById('pm-album').value    = typeof p.album === 'object' ? (p.album?.id || '') : (p.album || '');
+  document.getElementById('pm-loc').value      = p.location || '';
+  document.getElementById('pm-bike').value     = p.bike || '';
+  document.getElementById('pm-camera').value   = p.camera || '';
+  document.getElementById('pm-shotdate').value = p.shotDate ? p.shotDate.split('T')[0] : '';
+  document.getElementById('pm-lens').value     = [p.lens, p.settings].filter(Boolean).join(' · ');
+  document.getElementById('pm-feat').checked   = !!p.featured;
+  openM('photo-modal');
+}
+
+async function savePhotoM() {
+  if (!curPhotoId) return;
+  const title = document.getElementById('pm-title').value.trim();
+  if (!title) { toast('Title is required', 'error'); return; }
+  const lensRaw = document.getElementById('pm-lens').value.trim().split('·').map(s => s.trim());
+  const body = {
+    title,
+    description: document.getElementById('pm-desc').value.trim() || undefined,
+    category:    document.getElementById('pm-cat').value  || undefined,
+    album:       document.getElementById('pm-album').value || null,
+    location:    document.getElementById('pm-loc').value.trim()  || undefined,
+    bike:        document.getElementById('pm-bike').value.trim() || undefined,
+    camera:      document.getElementById('pm-camera').value.trim() || undefined,
+    lens:        lensRaw[0] || undefined,
+    settings:    lensRaw[1] || undefined,
+    shotDate:    document.getElementById('pm-shotdate').value || undefined,
+    featured:    document.getElementById('pm-feat').checked,
+  };
+  try {
+    await api(`/photos/${curPhotoId}`, { method: 'PATCH', body: JSON.stringify(body) });
+    closeM('photo-modal'); toast('Photo saved', 'success');
+    if (document.getElementById('section-photos').classList.contains('active')) loadPhotos(phPage);
+    if (document.getElementById('section-overview').classList.contains('active')) loadOverview();
+  } catch(e) { toast('Save failed: ' + e.message, 'error'); }
+}
+
+async function deletePhotoM() {
+  if (!curPhotoId || !confirm('Delete this photo? This cannot be undone.')) return;
+  try {
+    await api(`/photos/${curPhotoId}`, { method: 'DELETE' });
+    closeM('photo-modal'); toast('Photo deleted', 'success');
+    if (document.getElementById('section-photos').classList.contains('active')) loadPhotos(phPage);
+    if (document.getElementById('section-overview').classList.contains('active')) loadOverview();
+  } catch(e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+// ─── ALBUMS ───────────────────────────────────────────
+async function loadAlbums() {
+  const el = document.getElementById('al-grid');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading…</div>';
+  try {
+    const res = await api('/albums?limit=100&depth=1&sort=-createdAt');
+    const docs = res.docs || [];
+    if (!docs.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📁</div>No albums yet<br><button class="btn btn-primary" style="margin-top:1rem" onclick="openAlbumModal()">Create First Album</button></div>';
+      return;
+    }
+    el.innerHTML = `<div class="album-grid">${docs.map(albumCard).join('')}</div>`;
+  } catch(e) { el.innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`; }
+}
+
+function albumCard(a) {
+  const cover = thumbUrl(a.coverImage);
+  return `<div class="album-card">
+    ${cover ? `<img class="album-cover" src="${esc(cover)}" alt="${esc(a.title)}" loading="lazy">` : '<div class="album-cover"></div>'}
+    <div class="album-info">
+      <div class="album-title">${esc(a.title)}</div>
+      <div class="album-meta">${a.publishedDate ? new Date(a.publishedDate).toLocaleDateString() : ''}${a.featured ? ' · Featured' : ''}</div>
+      <div class="album-acts">
+        <button class="btn btn-secondary btn-sm" onclick="editAlbum('${a.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAlbum('${a.id}','${esc(a.title)}')">Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─── ALBUM MODAL ──────────────────────────────────────
+let curAlbumId = null, pendingCoverId = null;
+
+function openAlbumModal() {
+  curAlbumId = null; pendingCoverId = null;
+  document.getElementById('am-title-h').textContent = 'New Album';
+  document.getElementById('am-title').value = '';
+  document.getElementById('am-slug').value = '';
+  document.getElementById('am-date').value = '';
+  document.getElementById('am-desc').value = '';
+  document.getElementById('am-feat').checked = false;
+  document.getElementById('am-del-btn').style.display = 'none';
+  document.getElementById('am-cover-prev').style.display = 'none';
+  document.getElementById('am-cover').value = '';
+  document.getElementById('am-title').oninput = () => {
+    if (!curAlbumId)
+      document.getElementById('am-slug').value =
+        document.getElementById('am-title').value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  };
+  openM('album-modal');
+}
+
+async function editAlbum(id) {
+  try {
+    const a = await api(`/albums/${id}?depth=1`);
+    curAlbumId = id;
+    document.getElementById('am-title-h').textContent = 'Edit Album';
+    document.getElementById('am-title').value = a.title || '';
+    document.getElementById('am-slug').value  = a.slug  || '';
+    document.getElementById('am-date').value  = a.publishedDate ? a.publishedDate.split('T')[0] : '';
+    document.getElementById('am-desc').value  = a.description || '';
+    document.getElementById('am-feat').checked = !!a.featured;
+    document.getElementById('am-del-btn').style.display = 'inline-flex';
+    if (a.coverImage) {
+      pendingCoverId = typeof a.coverImage === 'object' ? a.coverImage.id : a.coverImage;
+      document.getElementById('am-cover-img').src = thumbUrl(a.coverImage);
+      document.getElementById('am-cover-prev').style.display = 'block';
+    }
+    openM('album-modal');
+  } catch(e) { toast('Could not load album: ' + e.message, 'error'); }
+}
+
+async function uploadMedia(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('alt', file.name.replace(/\.[^.]+$/, ''));
+  const r = await fetch(API + '/media', { method: 'POST', credentials: 'include', body: fd });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.message || `HTTP ${r.status}`); }
+  const d = await r.json();
+  return d.doc?.id || d.id;
+}
+
+async function saveAlbumM() {
+  const title = document.getElementById('am-title').value.trim();
+  const slug  = document.getElementById('am-slug').value.trim();
+  if (!title || !slug) { toast('Title and slug are required', 'error'); return; }
+  const cf = document.getElementById('am-cover').files[0];
+  if (cf) {
+    try { pendingCoverId = await uploadMedia(cf); }
+    catch(e) { toast('Cover upload failed: ' + e.message, 'error'); return; }
+  }
+  if (!pendingCoverId && !curAlbumId) { toast('A cover image is required', 'error'); return; }
+  const body = {
+    title, slug,
+    description: document.getElementById('am-desc').value.trim() || undefined,
+    publishedDate: document.getElementById('am-date').value || undefined,
+    featured: document.getElementById('am-feat').checked,
+    ...(pendingCoverId ? { coverImage: pendingCoverId } : {}),
+  };
+  try {
+    if (curAlbumId) { await api(`/albums/${curAlbumId}`, { method: 'PATCH', body: JSON.stringify(body) }); toast('Album updated', 'success'); }
+    else            { await api('/albums',               { method: 'POST',  body: JSON.stringify(body) }); toast('Album created', 'success'); }
+    closeM('album-modal'); loadAlbums(); loadAlbumLists();
+  } catch(e) { toast('Save failed: ' + e.message, 'error'); }
+}
+
+function deleteAlbumM() { if (curAlbumId) { closeM('album-modal'); deleteAlbum(curAlbumId); } }
+
+async function deleteAlbum(id, name) {
+  if (name && !confirm(`Delete album "${name}"?\nPhotos inside will not be deleted.`)) return;
+  try {
+    await api(`/albums/${id}`, { method: 'DELETE' });
+    toast('Album deleted', 'success'); loadAlbums(); loadAlbumLists();
+  } catch(e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+// ─── UPLOAD FLOW ──────────────────────────────────────
+let uploadItems = [];
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('dragover');
+  startUpload([...e.dataTransfer.files]);
+}
+function handleFiles(e) { startUpload([...e.target.files]); }
+
+function setStage(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('us' + i).style.display = i === n ? 'block' : 'none';
+    const dot = document.getElementById('d' + i);
+    const sd  = document.getElementById('sd' + i);
+    dot.className  = 'dot ' + (i <= n ? 'dot-on' : 'dot-off');
+    if (sd) sd.style.opacity = i <= n ? '1' : '0.35';
+  });
+}
+
+async function startUpload(files) {
+  if (!files.length) return;
+  const prog = document.getElementById('up-prog');
+  const bar  = document.getElementById('prog-bar');
+  const pct  = document.getElementById('up-pct');
+  const lbl  = document.getElementById('up-lbl');
+  prog.style.display = 'block'; bar.style.width = '10%'; pct.textContent = '10%';
+  lbl.textContent = `Uploading ${files.length} file${files.length > 1 ? 's' : ''}…`;
+
+  const fd = new FormData();
+  files.forEach(f => fd.append('files', f));
+  try {
+    bar.style.width = '40%'; pct.textContent = '40%';
+    const r = await fetch(API + '/bulk-upload', { method: 'POST', credentials: 'include', body: fd });
+    bar.style.width = '80%'; pct.textContent = '80%';
+    if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || `HTTP ${r.status}`); }
+    const data = await r.json();
+    bar.style.width = '100%'; pct.textContent = '100%';
+    uploadItems = data.uploaded || [];
+    if (!uploadItems.length) { toast('No images were uploaded', 'error'); prog.style.display = 'none'; return; }
+    setTimeout(() => { prog.style.display = 'none'; setStage(2); buildTagCards(); }, 400);
+  } catch(e) { prog.style.display = 'none'; bar.style.width = '0%'; toast('Upload failed: ' + e.message, 'error'); }
+}
+
+function buildTagCards() {
+  document.getElementById('apply-cat').innerHTML =
+    '<option value="">— pick —</option>' + CATS.map(c => `<option value="${c}">${c}</option>`).join('');
+
+  document.getElementById('tag-grid').innerHTML = uploadItems.map((item, i) => `
+    <div class="tag-card" id="tc-${i}">
+      <img class="tag-card-img" src="${esc(item.previewUrl)}" alt="${esc(item.originalName)}">
+      <div class="tag-card-body">
+        <div class="tag-card-fields">
+          <div class="form-group tcf-full">
+            <label class="form-label">Title</label>
+            <input class="form-input" id="tt-${i}" type="text" value="${esc(cleanFilename(item.originalName))}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="tcat-${i}">
+              <option value="">— none —</option>
+              ${CATS.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Album</label>
+            <select class="form-select" id="talb-${i}">
+              <option value="">— none —</option>
+              ${albumList.map(a => `<option value="${a.id}">${esc(a.title)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input class="form-input" id="tloc-${i}" type="text" placeholder="e.g. Brands Hatch">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Shot Date</label>
+            <input class="form-input" id="tdate-${i}" type="date">
+          </div>
+          <div class="form-group tcf-full">
+            <label class="form-label">The Bike</label>
+            <input class="form-input" id="tbike-${i}" type="text" placeholder="e.g. Ducati V4">
+          </div>
+        </div>
+        <div class="cb-row" style="margin-top:.25rem;margin-bottom:.75rem">
+          <input type="checkbox" id="tfeat-${i}">
+          <label for="tfeat-${i}">Featured</label>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="width:100%" onclick="saveOnePhoto(${i})">Save this photo</button>
+      </div>
+    </div>`).join('');
+}
+
+function applyAll() {
+  const alb = document.getElementById('apply-album').value;
+  const loc = document.getElementById('apply-loc').value;
+  const cat = document.getElementById('apply-cat').value;
+  uploadItems.forEach((_, i) => {
+    if (alb) document.getElementById('talb-' + i).value = alb;
+    if (loc) document.getElementById('tloc-' + i).value = loc;
+    if (cat) document.getElementById('tcat-' + i).value = cat;
+  });
+  toast('Applied to all cards', 'info');
+}
+
+function photoBody(i, mediaId) {
+  return {
+    title:    document.getElementById('tt-' + i).value.trim() || uploadItems[i].originalName,
+    image:    mediaId,
+    category: document.getElementById('tcat-' + i).value  || undefined,
+    album:    document.getElementById('talb-' + i).value  || null,
+    location: document.getElementById('tloc-' + i).value.trim() || undefined,
+    shotDate: document.getElementById('tdate-' + i).value || undefined,
+    bike:     document.getElementById('tbike-' + i).value.trim() || undefined,
+    featured: document.getElementById('tfeat-' + i).checked,
+  };
+}
+
+async function saveOnePhoto(i) {
+  const card = document.getElementById('tc-' + i);
+  try {
+    await api('/photos', { method: 'POST', body: JSON.stringify(photoBody(i, uploadItems[i].mediaId)) });
+    card.classList.add('saved');
+    const btn = card.querySelector('button');
+    btn.textContent = '✓ Saved'; btn.disabled = true;
+    toast('Photo saved', 'success');
+  } catch(e) { toast('Save failed: ' + e.message, 'error'); }
+}
+
+async function saveAll() {
+  const btn = document.getElementById('save-all-btn');
+  btn.disabled = true; document.getElementById('sa-txt').textContent = 'Saving…';
+  let saved = 0;
+  for (let i = 0; i < uploadItems.length; i++) {
+    const card = document.getElementById('tc-' + i);
+    if (card.classList.contains('saved')) { saved++; continue; }
+    try {
+      await api('/photos', { method: 'POST', body: JSON.stringify(photoBody(i, uploadItems[i].mediaId)) });
+      card.classList.add('saved'); saved++;
+    } catch(e) { toast(`Failed: ${uploadItems[i].originalName} — ${e.message}`, 'error'); }
+  }
+  const s = saved !== 1 ? 's' : '';
+  document.getElementById('done-h').textContent = `${saved} photo${s} saved!`;
+  document.getElementById('done-s').textContent = `All photos have been added to your library.`;
+  setStage(3); loadOverview();
+  btn.disabled = false; document.getElementById('sa-txt').textContent = 'Save All Photos';
+}
+
+function resetUpload() {
+  uploadItems = [];
+  document.getElementById('file-input').value = '';
+  document.getElementById('tag-grid').innerHTML = '';
+  document.getElementById('up-prog').style.display = 'none';
+  document.getElementById('prog-bar').style.width = '0%';
+  setStage(1);
+}
+
+// ─── INIT ─────────────────────────────────────────────
+checkSession();
+</script>
+</body>
+</html>
